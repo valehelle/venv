@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block content %}
+<form action="/stories/create_stories/" method="post" enctype = "multipart/form-data">{% csrf_token %}
+<ul>
+<input id="id_i_path" name="i_path" type="file" multiple>
+<input id="id_i_path" name="i_path" type="file" multiple>
+<input id="id_i_path" name="i_path" type="file" multiple>
+</ul>
+
+
+<input type = "submit" name = "submit" value = "Upload Picture">
+</form>
+{% endblock %}
