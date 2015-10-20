@@ -1,7 +1,17 @@
 from django import forms
-from models import Item
+from models import Text,Image,Story 
 
-class ItemForm(forms.ModelForm):
+class StoryForm(forms.ModelForm):
 	class Meta:
-		model = Item
-		fields = ('i_path',)
+		model = Story
+		exclude =("user","id","datetime","like","storyid")
+
+class TextForm(forms.ModelForm):
+	class Meta:
+		model = Text
+		fields = ('text','position')
+		
+class ImageForm(forms.ModelForm):
+	class Meta:
+		model = Image
+		exclude = ("storyid","position")
