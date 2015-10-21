@@ -4,7 +4,15 @@
 <form action="/stories/create_stories/" method="post" enctype = "multipart/form-data">{% csrf_token %}
 <ul>
 {{storyform}}
-<input id="id_source" name="source" type="file" multiple>
+<label for="id_source">Source:</label>
+<input id="id_source" name="source" type="file">
+<input id="id_position" name="position" type="hidden" value = 1>
+<label for="id_Text-text-1">Text:</label>
+<input id="id_Text-text" maxlength="140" name="Text-text" type="text">
+<input id="id_Text-position" name="Text-position" type="hidden" value = 2>
+<label for="id_source">Source:</label>
+<input id="id_source" name="source" type="file">
+<input id="id_position" name="position" type="hidden" value = 3>
 </ul>
 
 

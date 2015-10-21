@@ -7,7 +7,7 @@ import datetime
 # Create your models here.
 #Return the name to the Image file.
 def get_upload_file_name(instance,filename):
-	return "uploaded_files/%s_%s" % (str(time()).replace('.','_'),filename)
+	return "media/" + str(instance.username) + "/%s_%s" % (str(time()).replace('.','_'),filename)
 
 
 # User can have multiple story
@@ -22,9 +22,11 @@ class Text(models.Model):
 	text = models.CharField(max_length = 140)
 	position = models.IntegerField()
 	storyid = models.ForeignKey(Story)
+	username = models.CharField(max_length = 50)
 	
 #Item will be inside story
 class Image(models.Model):
 	source = models.FileField(upload_to = get_upload_file_name)
 	position = models.IntegerField()
 	storyid = models.ForeignKey(Story)
+	username = models.CharField(max_length = 50)

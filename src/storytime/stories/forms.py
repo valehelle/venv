@@ -9,9 +9,9 @@ class StoryForm(forms.ModelForm):
 class TextForm(forms.ModelForm):
 	class Meta:
 		model = Text
-		fields = ('text','position')
+		exclude = ("storyid","username")
 		
 class ImageForm(forms.ModelForm):
 	class Meta:
 		model = Image
-		exclude = ("storyid","position")
+		exclude = ("storyid","username")
