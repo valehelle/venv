@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% block content %}
+{{story.title}}
+    {% for item in items %}
+		{% if item.text %}
+		<div>{{item.text}}</div>
+		{% elif item.source %}
+		<img src = "{{MEDIA_URL}}{{item.source}}"  height="200" width="200"/>
+		{% endif %}
+		
+    {% endfor %}
+
+{% endblock %}

@@ -16,10 +16,12 @@ Including another URLconf
 from django.conf.urls import include, url
 from django.contrib import admin
 from storytime.stories import views
-
+import settings
 
 urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
 	url(r'^accounts/', include('registration.backends.default.urls')),
-	url(r'^stories/',views.create_stories),
+	url(r'^stories/create$',views.create_stories),
+	url(r'^stories/read',views.read_stories),
+	url(r'^media/(?P<path>.*)$', 'django.views.static.serve',{'document_root': settings.MEDIA_ROOT}),
 ]

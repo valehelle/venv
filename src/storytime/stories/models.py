@@ -15,11 +15,11 @@ class Story(models.Model):
 	user = models.ForeignKey(settings.AUTH_USER_MODEL)
 	datetime = models.DateTimeField(auto_now_add=True, blank=False)
 	like = models.IntegerField(null=True)
-	title = models.CharField(max_length = 140)
+	title = models.CharField(max_length = 200)
 	
 #Text will be inside story
 class Text(models.Model):
-	text = models.CharField(max_length = 140)
+	text = models.CharField(max_length = 200)
 	position = models.IntegerField()
 	storyid = models.ForeignKey(Story)
 	username = models.CharField(max_length = 50)

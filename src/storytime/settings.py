@@ -25,7 +25,6 @@ SECRET_KEY = 'ekv2z_viy2hd&1wd0yy-*c$*wucb!(2dy!g*npr8!n$ke90@ui'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-MEDIA_ROOT = 'C:/Project/venv/src/storytime/static'
 
 ALLOWED_HOSTS = []
 
@@ -79,6 +78,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+				'django.core.context_processors.media',
             ],
         },
     },
@@ -117,9 +117,12 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.8/howto/static-files/
 
-STATIC_URL = '/static/'
+MEDIA_ROOT = 'C:/Project/venv/src/storytime/static'
+MEDIA_URL = '/media/'
 
+STATIC_URL = '/static/'
 STATICFILES_DIRS = (
     os.path.join(BASE_DIR, "static"),
     'C:/Project/venv/src/storytime/static', 
 )
+

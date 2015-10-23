@@ -4,16 +4,59 @@
 <form action="/stories/create_stories/" method="post" enctype = "multipart/form-data">{% csrf_token %}
 <ul>
 {{storyform}}
-<label for="id_source">Source:</label>
+<label for="id_text">Text:</label>
+<input id="id_text" maxlength="200" name="text" type="text">
+<input id="id_text_position" name="text_position" type="hidden" value = 1>
+<br/>
+<label for="id_source">Image:</label>
 <input id="id_source" name="source" type="file">
-<input id="id_position" name="position" type="hidden" value = 1>
-<label for="id_Text-text-1">Text:</label>
-<input id="id_Text-text" maxlength="140" name="Text-text" type="text">
-<input id="id_Text-position" name="Text-position" type="hidden" value = 2>
-<label for="id_source">Source:</label>
+<input id="id_position" name="position" type="hidden" value = 2>
+<br/>
+<label for="id_text">Text:</label>
+<input id="id_text" maxlength="200" name="text" type="text">
+<input id="id_text_position" name="text_position" type="hidden" value = 5>
+<br/>
+<label for="id_source">Image:</label>
 <input id="id_source" name="source" type="file">
-<input id="id_position" name="position" type="hidden" value = 3>
-</ul>
+<input id="id_position" name="position" type="hidden" value = 6>
+<br/>
+<label for="id_source">Image:</label>
+<input id="id_source" name="source" type="file">
+<input id="id_position" name="position" type="hidden" value = 7>
+<br/>
+<label for="id_source">Image:</label>
+<input id="id_source" name="source" type="file">
+<input id="id_position" name="position" type="hidden" value = 8>
+<br/>
+<label for="id_text">Text:</label>
+<input id="id_text" maxlength="200" name="text" type="text">
+<input id="id_text_position" name="text_position" type="hidden" value = 9>
+<br/>
+<label for="id_source">Image:</label>
+<input id="id_source" name="source" type="file">
+<input id="id_position" name="position" type="hidden" value = 10>
+<br/>
+<label for="id_source">Image:</label>
+<input id="id_source" name="source" type="file">
+<input id="id_position" name="position" type="hidden" value = 11>
+<br/>
+<label for="id_text">Text:</label>
+<input id="id_text" maxlength="200" name="text" type="text">
+<input id="id_text_position" name="text_position" type="hidden" value = 13>
+<br/>
+<label for="id_source">Image:</label>
+<input id="id_source" name="source" type="file">
+<input id="id_position" name="position" type="hidden" value = 14>
+<br/>
+<label for="id_text">Text:</label>
+<input id="id_text" maxlength="200" name="text" type="text">
+<input id="id_text_position" name="text_position" type="hidden" value = 17>
+<br/>
+<label for="id_source">Image:</label>
+<input id="id_source" name="source" type="file">
+<input id="id_position" name="position" type="hidden" value = 18>
+<br/>
+
 
 
 <input type = "submit" name = "submit" value = "Upload Picture">
