@@ -21,7 +21,7 @@ import settings
 urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
 	url(r'^accounts/', include('registration.backends.default.urls')),
-	url(r'^stories/create$',views.create_stories),
+	url(r'^stories/create_stories/',views.create_stories),
 	url(r'^stories/read',views.read_stories),
 	url(r'^media/(?P<path>.*)$', 'django.views.static.serve',{'document_root': settings.MEDIA_ROOT}),
 ]

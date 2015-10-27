@@ -5,6 +5,7 @@ from django.forms.formsets import formset_factory
 from models import Story,Text,Image
 from operator import attrgetter
 from itertools import chain
+from uuid import UUID
 
 # Create your views here.
 def create_stories(request):
@@ -24,7 +25,7 @@ def create_stories(request):
 					text = TextForm(request.POST)
 					if text.is_valid():
 						addtext = text.save(commit = False)
-						addtext.storyid_id = story.id
+						addtext.storyid = story.storyid
 						addtext.username = current_user.username
 						addtext.position = p
 						addtext.text = f
@@ -33,13 +34,11 @@ def create_stories(request):
 						return HttpRespondeRedirect('/TextInsertError')
 				
 				#Handle insertion of the image
-				#Get the order of position first
-
 				for f,p in zip(request.FILES.getlist('source'),request.POST.getlist('position')):
 					form = ImageForm(request.POST, {'source': f})
 					if form.is_valid():
 						addimage = form.save(commit = False)
-						addimage.storyid_id = story.id
+						addimage.storyid = story.storyid
 						addimage.username = current_user.username
 						addimage.position = p
 						addimage.save()
@@ -63,11 +62,18 @@ def create_stories(request):
 def read_stories(request):
 	if request.GET:
 		#Get the story id from url.
-		storyid = request.GET.get('s')
+		r_id = request.GET.get('s')
+		try:
+			val = UUID(r_id, version=4)
+		except ValueError:
+			# If it's a value error, then the string 
+			# is not a valid hex code for a UUID.
+			return HttpRespondeRedirect("/home")
+			
 		#Fetch the data necessary from database
-		story = Story.objects.get(id = storyid)
-		image = Image.objects.filter(storyid_id = storyid)
-		text = Text.objects.filter(storyid_id = storyid)
+		story = Story.objects.get(storyid = r_id)
+		image = Image.objects.filter(storyid = r_id)
+		text = Text.objects.filter(storyid = r_id)
 		#Combine result for text and image. Sort according to position
 		combine = sorted(
 						chain(text,image),
