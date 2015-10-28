@@ -3,6 +3,7 @@ from forms import TextForm,ImageForm,StoryForm
 from django.template.context_processors import csrf
 from django.forms.formsets import formset_factory
 from models import Story,Text,Image
+from django.contrib.auth.models import User
 from operator import attrgetter
 from itertools import chain
 from uuid import UUID
@@ -72,6 +73,7 @@ def read_stories(request):
 			
 		#Fetch the data necessary from database
 		story = Story.objects.get(storyid = r_id)
+		person = User.objects.get(id = story.user_id)
 		image = Image.objects.filter(storyid = r_id)
 		text = Text.objects.filter(storyid = r_id)
 		#Combine result for text and image. Sort according to position
@@ -81,6 +83,7 @@ def read_stories(request):
 		args = {}
 		args['story'] = story
 		args['items'] = combine
+		args['author'] = person.username
 		return render (request,"read_stories.html",args)
 	else:
 		return HttpRespondeRedirect("/home")

@@ -1,14 +1,57 @@
 {% extends "base.html" %}
 {% load staticfiles %}
 {% block content %}
-{{story.title}}
-    {% for item in items %}
-		{% if item.text %}
-		<div>{{item.text}}</div>
-		{% elif item.source %}
-		<img src = "{{MEDIA_URL}}{{item.source}}"  height="200" width="200"/>
-		{% endif %}
+<div class= "row" >
+	<div class = "col-lg-8 col-lg-push-2" id = "storyboard" >
+		<br>
+		<div class = "row">
+			<div class = "col-lg-2 col-lg-push-3">
+				<img class = "img-circle img-responsive user-pic" style="height: 130px; width: 130px"   src = "{{MEDIA_URL}}/media/valehelle/1445923237_4_196496_10150101729229195_6424518_n.jpg" />
+			</div>
+			<div class = "col-lg-4 col-lg-push-3">
+				<h1>{{story.title}}</h1>
+				<h2>Story by: {{author}} </hr>
+			</div>
+		</div>
+		<br>
+		<hr>
+		<br>
+		<div class = "row">
+			<div class = "col-lg-11 ">
+				{% for item in items %}
+					<div class = "col-lg-3 col-lg-push-1" >
+						{% if item.text %}
+							<div class="item square img-rounded">
+								<h5 class = "text-center">{{item.text}}</h5>
+							</div>
+							<div style="display: none;">									
+								<a  class="fancybox-thumb" rel="fancybox-thumb" href="#inline{{forloop.counter}}" title="" >Inline</a>
+								<div id="inline{{forloop.counter}}" style="width:400px;height:100px;overflow:auto;">
+									{{item.text}}
+								</div>		
+							</div>
+						{% elif item.source %}
+							 <div class = "item square">
+								<img class = " center-cropped" src = "{{MEDIA_URL}}{{item.source}}"/>
+							</div>
+								<div style="display: none;">
+									<a class="fancybox-thumb" rel="fancybox-thumb" href="{{MEDIA_URL}}{{item.source}}" title="">
+										<img src=""{{MEDIA_URL}}{{item.source}}"" alt="" />
+									</a>
 		
-    {% endfor %}
+								</div>
+						{% endif %}
+					</div> 
+					
+						{% cycle '<div class = "col-lg-1 col-lg-push-1"><div><hr></div></div>' '<div class = "col-lg-1 col-lg-push-1"><div><hr></div></div>' '<div class = "row no-gutter"><div class = "col-lg-11 "> <hr></div> </div>'%}
+					
+				{% endfor %}
+			</div>
+		</div>
+	</div>
+</div>
 
+{% endblock %}
+{% block footer %}
+footer
 {% endblock %}
