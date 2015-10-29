@@ -10,37 +10,10 @@ html,body
 	margin-top: 0.5%;
 	margin-left: -13px;
 }
-
-.square{
-    position:relative;
-    overflow:hidden;
-    padding-bottom:100%;
-	background-color: black;
-	margin-bottom: 20px;
-	box-shadow: 3px 3px 6px #888888;
-}
 #username{
 	margin-top: 0.5%;
 	text-align: right;
 	
-	
-}
-.square h5{
-    position:absolute;
-	color: white;
-}
-.square img{
-    position:absolute;
-
-}
-
-.text-white{
-	
-	color: white;
-	text-align: right;
-}
-.user-pic{
-	margin-top: 5%;
 }
 #content {
   background-color: white;
@@ -54,14 +27,12 @@ html,body
 	box-shadow: 1px 1px 5px #888888;
 }
 
-.center-cropped {
-  object-fit: cover;       /* Scale the image so it covers whole area, thus will likely crop */
-  object-position: center; /* Center the image within the element */
-  height: 330px;
-  width: 330px;
+.text-white{
+	
+	color: white;
+	text-align: right;
+}
+.user-pic{
+	margin-top: 5%;
 }
 
-.no-gutter {
-    padding-left:0;
-	margin-bottom:-1.5%;
-}
