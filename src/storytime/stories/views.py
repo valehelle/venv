@@ -10,7 +10,7 @@ from uuid import UUID
 
 # Create your views here.
 def create_stories(request):
-	
+
 	if request.user.is_authenticated():
 		if request.POST:
 			current_user = request.user
@@ -87,3 +87,4 @@ def read_stories(request):
 		return render (request,"read_stories.html",args)
 	else:
 		return HttpRespondeRedirect("/home")
+		

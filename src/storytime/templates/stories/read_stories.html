@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load staticfiles %}
+{% load thumbnail %}
 {% block predata %}
 	<link rel="stylesheet" type="text/css" href="{% static "css/read_stories.css" %}">
 	<!-- Add mousewheel plugin (this is optional) -->
@@ -40,12 +41,16 @@
 							</div>
 						{% elif item.source %}
 							 <div class = "item square text1">
-								<img class = " center-cropped" src = "{{MEDIA_URL}}{{item.source}}"/>
+								{% thumbnail item.source "330x330" crop="center" as im %}
+								<img class = " center-cropped"  src="{{im.url}}" width="{{im.width}}" height="{{im.height}}">
+								{% endthumbnail %}
 							</div>
 								<div style="display: none;">
-									<a class="fancybox-thumb" rel="fancybox-thumb" href="{{MEDIA_URL}}{{item.source}}" title="">
-										<img src=""{{MEDIA_URL}}{{item.source}}"" alt="" />
+								{% thumbnail item.source "x700" as im %}
+									<a class="fancybox-thumb" rel="fancybox-thumb" href="{{im.url}}" title="" width="{{im.width}}" height="{{im.height}}">
+										<img src="{{im.url}}" width="{{im.width}}" height="{{im.height}}" />
 									</a>
+								{% endthumbnail %}
 		
 								</div>
 						{% endif %}

@@ -24,7 +24,7 @@ SECRET_KEY = 'ekv2z_viy2hd&1wd0yy-*c$*wucb!(2dy!g*npr8!n$ke90@ui'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-
+THUMBNAIL_DEBUG = True 
 
 ALLOWED_HOSTS = []
 
@@ -48,6 +48,7 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
 	'registration',
 	'storytime.stories',
+	'sorl.thumbnail',
 )
 
 ACCOUNT_ACTIVATION_DAYS = 7

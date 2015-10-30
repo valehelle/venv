@@ -3,6 +3,7 @@ from django.db import models
 from time import time
 import datetime
 import uuid
+from sorl.thumbnail import ImageField
 
 # Create your models here.
 #Return the name to the Image file.
