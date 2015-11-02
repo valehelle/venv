@@ -1,64 +1,54 @@
 {% extends "base.html" %}
-
+{% load staticfiles %}
+{% block predata %}
+	<link rel="stylesheet" type="text/css" href="{% static "css/create_story.css" %}">
+	<script type="text/javascript" src="{% static "js/create_story.js"%}"></script>
+{% endblock %}
 {% block content %}
-<form action="/stories/create_stories/" method="post" enctype = "multipart/form-data">{% csrf_token %}
-<ul>
-{{storyform}}
-<label for="id_text">Text:</label>
-<input id="id_text" maxlength="200" name="text" type="text">
-<input id="id_text_position" name="text_position" type="hidden" value = 1>
-<br/>
-<label for="id_source">Image:</label>
-<input id="id_source" name="source" type="file">
-<input id="id_position" name="position" type="hidden" value = 2>
-<br/>
-<label for="id_text">Text:</label>
-<input id="id_text" maxlength="200" name="text" type="text">
-<input id="id_text_position" name="text_position" type="hidden" value = 5>
-<br/>
-<label for="id_source">Image:</label>
-<input id="id_source" name="source" type="file">
-<input id="id_position" name="position" type="hidden" value = 6>
-<br/>
-<label for="id_source">Image:</label>
-<input id="id_source" name="source" type="file">
-<input id="id_position" name="position" type="hidden" value = 7>
-<br/>
-<label for="id_source">Image:</label>
-<input id="id_source" name="source" type="file">
-<input id="id_position" name="position" type="hidden" value = 8>
-<br/>
-<label for="id_text">Text:</label>
-<input id="id_text" maxlength="200" name="text" type="text">
-<input id="id_text_position" name="text_position" type="hidden" value = 9>
-<br/>
-<label for="id_source">Image:</label>
-<input id="id_source" name="source" type="file">
-<input id="id_position" name="position" type="hidden" value = 10>
-<br/>
-<label for="id_source">Image:</label>
-<input id="id_source" name="source" type="file">
-<input id="id_position" name="position" type="hidden" value = 11>
-<br/>
-<label for="id_text">Text:</label>
-<input id="id_text" maxlength="200" name="text" type="text">
-<input id="id_text_position" name="text_position" type="hidden" value = 13>
-<br/>
-<label for="id_source">Image:</label>
-<input id="id_source" name="source" type="file">
-<input id="id_position" name="position" type="hidden" value = 14>
-<br/>
-<label for="id_text">Text:</label>
-<input id="id_text" maxlength="200" name="text" type="text">
-<input id="id_text_position" name="text_position" type="hidden" value = 17>
-<br/>
-<label for="id_source">Image:</label>
-<input id="id_source" name="source" type="file">
-<input id="id_position" name="position" type="hidden" value = 18>
-<br/>
+
+<div class = "row">
+	<div class = "col-lg-12">
+		{% if messages %}
+		<div class="messages">
+			{% for message in messages %}
+			<div{% if message.tags %} class="{{ message.tags }}"{% endif %}><h5 class = "error">{{ message }}</h5></div>
+			{% endfor %}
+		</div>
+		{% endif %}
+		
+		{{ form.source.errors }}
+		{% if form.title.errors %}
+			<h5 class = "error">Please insert your title</h5>
+		{% endif %}
+	</div>
+	<div class = "col-lg-12">
+		<form action="/stories/create_stories/" method="post" enctype = "multipart/form-data">{% csrf_token %}
+		<div class = "row">
+			<div class = "col-lg-6 col-lg-push-5">
+				{{storyform}}
+			</div>
+		</div>
+		<div id = "page" class = "row">
+			<div id = "choice" class = "col-lg-1">
+				<div class = "row">
+					<div id="addimage" class = "col-lg-12">
+						Image
+					</div>
+				</div>
+				<div class = "row">
+					<div id = "addtext" class = "col-lg-12 ">
+						Text
+					</div>
+				</div>
+			</div>
+		</div>
+		<input type = "submit" name = "submit" value = "Upload Picture">
+		</form>
+	</div>
+</div>
 
 
-
-<input type = "submit" name = "submit" value = "Upload Picture">
-</form>
+{% endblock %}
+{% block footer %}
+footer
 {% endblock %}

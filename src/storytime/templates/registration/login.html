@@ -40,12 +40,14 @@
 	</div>		
 	<br>
 	<div class="container">
-
 		<div class = "row"> 
 			<img id = "welcome" class="col-lg-8 col-xs-12" src = "{% static "image\welcome_header\welcome.png" %} "></img>
 				<div id = "signin" class = "col-lg-4">
 					<form method="post" action=".">
 						<h2  id = "signin" class="form-signin-heading">Please sign in</h2>
+						{% if form.errors %}
+							<h5>Your username and password didn't match. Please try again.</h5>
+						{% endif %}
 						{% csrf_token %} 
 						<div class="form-group">
 							<label for="id_username">Username:</label>

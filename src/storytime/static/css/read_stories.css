@@ -24,6 +24,13 @@
     text-justify: inter-word;
 	margin-left:10px;
 	margin-right:10px;
+
+}
+.text_inside h2{
+	text-align: justify;
+    text-justify: inter-word;
+	margin-left:10px;
+	margin-right:10px;
 }
 .square img{
     position:absolute;
@@ -33,12 +40,6 @@
 	margin-top: 100px;
 }
 
-.center-cropped {
-  object-fit: cover;       /* Scale the image so it covers whole area, thus will likely crop */
-  object-position: center; /* Center the image within the element */
-  height: 330px;
-  width: 330px;
-}
 
 .no-gutter {
     padding-left:0;

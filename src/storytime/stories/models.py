@@ -31,7 +31,61 @@ class Text(models.Model):
 	
 #Item will be inside story
 class Image(models.Model):
-	source = models.FileField(upload_to = get_upload_file_name)
+	source = models.ImageField(upload_to = get_upload_file_name)
 	position = models.IntegerField(default = 0)
 	storyid = models.UUIDField(default=uuid.uuid4)
 	username = models.CharField(max_length = 50)
+
+class User_Info(models.Model):
+	name = models.CharField(max_length = 200)
+	user = models.OneToOneField(settings.AUTH_USER_MODEL,primary_key=True)
+	desc = models.CharField(max_length = 200)
+	profile_pic = models.ImageField(upload_to = get_upload_file_name)
+	
+class Person(models.Model):
+	name = models.CharField(max_length=100)
+	relationships = models.ManyToManyField('self', through='Relationship',
+                                           symmetrical=False,
+                                           related_name='related_to')
+	def __unicode__(self):
+		return '%s' %  (self.name)
+	def add_relationship(self, person, status):
+		relationship, created = Relationship.objects.get_or_create(
+			from_person=self,
+			to_person=person,
+			status=status)
+		return relationship
+
+	def remove_relationship(self, person, status):
+		Relationship.objects.filter(
+			from_person=self,
+			to_person=person,
+			status=status).delete()
+		return		
+	def get_relationships(self, status):
+		return self.relationships.filter(
+			to_people__status=status,
+			to_people__from_person=self)
+
+	def get_related_to(self, status):
+		return self.related_to.filter(
+			from_people__status=status,
+			from_people__to_person=self)
+
+	def get_following(self):
+		return self.get_relationships(RELATIONSHIP_FOLLOWING)
+
+	def get_followers(self):
+		return self.get_related_to(RELATIONSHIP_FOLLOWING)
+#Relationship
+RELATIONSHIP_FOLLOWING = 1
+RELATIONSHIP_BLOCKED = 2
+RELATIONSHIP_STATUSES = (
+    (RELATIONSHIP_FOLLOWING, 'Following'),
+    (RELATIONSHIP_BLOCKED, 'Blocked'),
+)
+
+class Relationship(models.Model):
+    from_person = models.ForeignKey(Person, related_name='from_people')
+    to_person = models.ForeignKey(Person, related_name='to_people')
+    status = models.IntegerField(choices=RELATIONSHIP_STATUSES)

@@ -8,7 +8,7 @@
 	<!-- Add fancyBox -->
 	<link rel="stylesheet" href="{% static "fancybox/source/jquery.fancybox.css"%}?v=2.1.5" type="text/css" media="screen" />
 	<script type="text/javascript" src="{% static "fancybox/source/jquery.fancybox.pack.js"%}?v=2.1.5"></script>
-	<script type="text/javascript" src="{% static "js/read_stories.js"%}?v=2.1.5"></script>
+	<script type="text/javascript" src="{% static "js/read_stories.js"%}"></script>
 	<link href='https://fonts.googleapis.com/css?family=Architects+Daughter' rel='stylesheet' type='text/css'>
 {% endblock %}
 {% block content %}
@@ -35,8 +35,8 @@
 							</div>
 							<div style="display: none;">									
 								<a  class="fancybox-thumb" rel="fancybox-thumb" href="#inline{{forloop.counter}}" title="" >Inline</a>
-								<div id="inline{{forloop.counter}}" style="width:400px;height:100px;overflow:auto;">
-									{{item.text}}
+								<div class = "text_inside" id="inline{{forloop.counter}}" style="width:400px;height:400px;overflow:auto;">
+									<h2 >{{item.text}}</h2>
 								</div>		
 							</div>
 						{% elif item.source %}
