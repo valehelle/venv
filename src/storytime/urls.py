@@ -19,10 +19,13 @@ from storytime.stories import views
 import settings
 
 urlpatterns = [
-    url(r'^admin/', include(admin.site.urls)),
+	url(r'^accounts/login$',views.custom_login),
 	url(r'^accounts/', include('registration.backends.default.urls')),
 	url(r'^stories/create_stories/',views.create_stories),
 	url(r'^stories/read',views.read_stories),
-	url(r'^stories/test',views.testing),
 	url(r'^media/(?P<path>.*)$', 'django.views.static.serve',{'document_root': settings.MEDIA_ROOT}),
+	url(r'^profile',views.user_profile),
+	url(r'^relationship/unfollow',views.unfollow),
+	url(r'^relationship/follow',views.follow),
+	url(r'^',views.following),
 ]

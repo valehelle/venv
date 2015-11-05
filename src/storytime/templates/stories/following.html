@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% load thumbnail %}
+{% block predata %}
+	<link rel="stylesheet" type="text/css" href="{% static "css/following.css" %}">
+	<script type="text/javascript" src="{% static "js/following.js"%}"></script>
+	
+{% endblock %}
+	
+{% block content %}
+	<br>
+	<div class = "row">
+		<div class = "col-lg-5 col-lg-push-1 btn btn-success btn-lg feed">
+			<div>Feed</div>
+		</div>
+		<div class = "col-lg-5 col-lg-push-1 btn btn-success btn-lg discover">
+			<div>Discover</div>
+		</div>
+	</div>
+{% endblock %}
+{% block footer %}
+footer
+{% endblock %}

@@ -16,23 +16,23 @@ html,body
 	
 }
 #content {
-  background-color: white;
-  background-image:
+	margin-top: 50px;
+	background-color: white;
+	background-image:
     linear-gradient(
       white, #e2f5c5
     );
 }
 #storyboard{
 	background-color: white;
-	box-shadow: 1px 1px 5px #888888;
+
+	/*box-shadow: 1px 1px 5px #888888;*/
 }
 
 .text-white{
-	
 	color: white;
 	text-align: right;
 }
 .user-pic{
 	margin-top: 5%;
 }
-
