@@ -1,10 +1,10 @@
-.btn{
+#row .btn{
 	background-color: #99cc33;
 }
 .feed{
 	background-color: #4cae4c;
-	margin-left: -40px;
+
 }
 .discover{
-	margin-left: 80px;
+	
 }

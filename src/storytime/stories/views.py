@@ -2,7 +2,7 @@ from django.shortcuts import render
 from forms import TextForm,ImageForm,StoryForm
 from django.template.context_processors import csrf
 from django.forms.formsets import formset_factory
-from models import Story,Text,Image,Person,RELATIONSHIP_FOLLOWING
+from models import Story,Text,Image,Person,RELATIONSHIP_FOLLOWING,User_Info
 from django.contrib.auth.models import User
 from django.http import HttpResponseRedirect, HttpResponse
 from django.contrib.auth.views import login
@@ -62,8 +62,15 @@ def create_stories(request):
 						list_form.append(addimage);
 					else:
 						return render_page(request,"create_stories.html",{'form': form})
+				#All form has been validated. Save it permanently
 				for item_form in list_form:
 					item_form.save()
+				#Stream to all users who follows.
+				user,created = Person.objects.get_or_create(name_id = request.user.id,id = request.user.id)
+				followers = user.get_followers()
+				import user_streams
+				user_streams.add_stream_item(followers, 'story:'+story.storyid+':'+request.user.id)
+				
 				return HttpRespondeRedirect('/complete')
 			else:
 				return render_page(request,"create_stories.html",{'form': storyform})
@@ -129,7 +136,25 @@ def read_stories(request):
 #Show story from people who you followed	
 def following(request):
 	if request.user.is_authenticated():
-		return render (request,"following.html",[])
+		#Create profile for user the first time.
+		user = user,created = User_Info.objects.get_or_create(name = request.user.username,user_id = request.user.id)
+		#Get the data streams for the user
+		import user_streams
+		items = user_streams.get_stream_items(request.user)
+		imagelist = []
+		storylist = []
+		for item in items:
+			object = item.content.split(":")
+			if object[0] == "story":
+				story = Story.objects.get(storyid = object[1])
+				image = Image.objects.filter(storyid = story.storyid).first()
+				imagelist.append(image)
+				storylist.append(story)
+		
+		list = zip(storylist,imagelist)
+		args = {}
+		args['list'] = list
+		return render (request,"following.html",args)
 	else:
 		return HttpResponseRedirect("/accounts/login/")
 
@@ -152,7 +177,7 @@ def user_profile(request):
 				
 			list = zip(stories,imagelist)
 			#Get the person object from the username
-			profileuser = Person.objects.get(name = person.username)
+			profileuser, profilecreated = Person.objects.get_or_create(name_id = person.id,id = person.id)
 			#Get the user following and follower
 			followers = profileuser.get_followers()
 			followingcount = profileuser.get_following().count()
@@ -164,7 +189,7 @@ def user_profile(request):
 				item = "User"
 			else:
 				try:
-					followers.get(name = request.user.username)
+					followers.get(name = request.user.id)
 					item = "Unfollow"
 				except :
 					item = "Follow"
@@ -175,7 +200,8 @@ def user_profile(request):
 			args['list'] = list
 			args['followingcount'] = followingcount
 			args['followerscount'] = followercount
-			args['user'] = person
+			args['profile'] = person
+			args['user'] = request.user
 			args['item'] = item
 		return render (request,"user_profile.html",args)
 	else:
@@ -185,30 +211,30 @@ def user_profile(request):
 def unfollow(request):
 	if request.POST:
 		#Get the username for the user and the person he/she want to unfollow
-		person = request.POST.get("username")
-		user = request.user.username
+		person = User.objects.get(username=request.POST.get("username"))
+		user = request.user
 		#Get the person object for both of the person
-		profileuser,profilecreated = Person.objects.get_or_create(name = person)
-		user,usercreated = Person.objects.get_or_create(name = user)
+		profileuser,profilecreated = Person.objects.get_or_create(id = person.id,name_id = person.id)
+		user,usercreated = Person.objects.get_or_create(id = user.id,name_id = user.id)
 		#Remove their relationship
 		user.remove_relationship(profileuser,RELATIONSHIP_FOLLOWING)
 		import json
 		data = {}
-		data['string'] = '<button type="button" class="btn btn-success item" id = "follow" value = " ' + person + ' ">Follow</button>'
+		data['string'] = '<button type="button" class="btn btn-success item" id = "follow" value = "' + person.username + '">Follow</button>'
 		return HttpResponse(json.dumps(data), content_type = "application/json")
 #Handle unfollow request	
 def follow(request):
 	if request.POST:
 		#Get the username for the user and the person he/she want to unfollow
-		person = request.POST.get("username")
-		user = request.user.username
+		person = User.objects.get(username=request.POST.get("username"))
+		user = request.user
 		#Get the person object for both of the person
-		profileuser,profilecreated   = Person.objects.get_or_create(name = person)
-		user,usercreated = Person.objects.get_or_create(name = user)
+		profileuser,profilecreated   = Person.objects.get_or_create(id = person.id,name_id = person.id)
+		user,usercreated = Person.objects.get_or_create(id = user.id,name_id = user.id)
 		#Remove their relationship
 		user.add_relationship(profileuser,RELATIONSHIP_FOLLOWING)
 		import json
 		data = {}
-		data['string'] = '<button type="button" class="btn btn-success item" id = "unfollow" value = " ' + person + ' ">Unfollow</button>'
+		data['string'] = '<button type="button" class="btn btn-success item" id = "unfollow" value = "' + person.username +' ">Unfollow</button>'
 		return HttpResponse(json.dumps(data), content_type = "application/json")
 

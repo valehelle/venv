@@ -27,5 +27,5 @@ urlpatterns = [
 	url(r'^profile',views.user_profile),
 	url(r'^relationship/unfollow',views.unfollow),
 	url(r'^relationship/follow',views.follow),
-	url(r'^',views.following),
+	url(r'^$',views.following),
 ]

@@ -43,7 +43,7 @@ class User_Info(models.Model):
 	profile_pic = models.ImageField(upload_to = get_upload_file_name)
 	
 class Person(models.Model):
-	name = models.CharField(max_length=100)
+	name = models.ForeignKey(settings.AUTH_USER_MODEL)
 	relationships = models.ManyToManyField('self', through='Relationship',
                                            symmetrical=False,
                                            related_name='related_to')
