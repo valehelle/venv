@@ -48,3 +48,6 @@
 .verticaldot{
 	margin-bottom: 20px;
 }
+#id_honeypot {
+    display: none;
+}

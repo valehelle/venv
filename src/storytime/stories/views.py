@@ -1,18 +1,38 @@
 from django.shortcuts import render
-from forms import TextForm,ImageForm,StoryForm
+from forms import TextForm,ImageForm,StoryForm,EditForm,EditFormImage
 from django.template.context_processors import csrf
 from django.forms.formsets import formset_factory
 from models import Story,Text,Image,Person,RELATIONSHIP_FOLLOWING,User_Info
 from django.contrib.auth.models import User
 from django.http import HttpResponseRedirect, HttpResponse
 from django.contrib.auth.views import login
+from django_comments.views.comments import post_comment
+from django_comments.models import Comment
 
-
+def custom_posted(request):
+	if request.GET:
+		commentid = request.GET.get('c')
+		comment = Comment.objects.get(id = commentid)
+		story = Story.objects.get(id = comment.object_pk)
+		user = User.objects.get(id = story.user_id)
+		#If another person that is not the author comment, notify the author.
+		if not (user.id == comment.user_id):
+			#Notify the story author that the user has commented.
+			import user_streams
+			user_streams.add_stream_item(user,str(comment.user_id) + ':has commented on your post:' + str(story.storyid))
+			#Notify the follower of the user that the user has commented on this story
+			user,created = Person.objects.get_or_create(name_id = comment.user_id,id = comment.user_id)
+			followers = user.get_followers()
+			user_streams.add_stream_feed(followers, str(comment.user_id) + ':has commented on a story:' + str(story.storyid))
+			
+		
+	
+	
 def custom_login(request):
-    if request.user.is_authenticated():
-        return HttpResponseRedirect("/following/")
-    else:
-        return login(request)
+	if request.user.is_authenticated():
+		return HttpResponseRedirect("/following/")
+	else:
+		return login(request)
 		
 # Create your views here.
 def create_stories(request):
@@ -32,13 +52,13 @@ def create_stories(request):
 			if storyform.is_valid():
 				story = storyform.save(commit = False)
 				story.user_id = current_user.id
-				list_form.append(story)
+				story.save()
 				#Handle insertion of the text
 				for f,p in zip(request.POST.getlist('text'),request.POST.getlist('text_position')):
 					text = TextForm(request.POST,{'position' : p,'text': f })
 					if text.is_valid():
 						addtext = text.save(commit = False)
-						addtext.storyid = story.storyid
+						addtext.storyid_id = story.id
 						addtext.username = current_user.username
 						addtext.position = p
 						addtext.text = f
@@ -56,7 +76,7 @@ def create_stories(request):
 					form = ImageForm(request.POST, {'source': f })
 					if form.is_valid():
 						addimage = form.save(commit = False)
-						addimage.storyid = story.storyid
+						addimage.storyid_id = story.id
 						addimage.username = current_user.username
 						addimage.position = p
 						list_form.append(addimage);
@@ -65,11 +85,14 @@ def create_stories(request):
 				#All form has been validated. Save it permanently
 				for item_form in list_form:
 					item_form.save()
+				#Change the story complete to true so user can see it.
+				story.complete = True;
+				story.save();
 				#Stream to all users who follows.
 				user,created = Person.objects.get_or_create(name_id = request.user.id,id = request.user.id)
 				followers = user.get_followers()
 				import user_streams
-				user_streams.add_stream_item(followers, 'story:'+story.storyid+':'+request.user.id)
+				user_streams.add_stream_feed(followers, str(request.user.id) + ':' + str(story.storyid))
 				
 				return HttpRespondeRedirect('/complete')
 			else:
@@ -85,12 +108,15 @@ def render_page(request,html,form):
 	imageform = ImageForm()
 	textform = TextForm()
 	storyform = StoryForm(prefix = "Story")
+	profile = User_Info.objects.get(user_id = request.user.id)
+
 	args = {}
 	#Add csrf security
 	args.update(csrf(request))
 	args['textform'] = textform
 	args['imageform'] = imageform
 	args['storyform'] = storyform
+	args['profile'] = profile 
 	
 	#if there is an error add it inside the args
 	if isinstance(form, dict):
@@ -119,8 +145,9 @@ def read_stories(request):
 		#Fetch the data necessary from database
 		story = Story.objects.get(storyid = r_id)
 		person = User.objects.get(id = story.user_id)
-		image = Image.objects.filter(storyid = r_id)
-		text = Text.objects.filter(storyid = r_id)
+		image = Image.objects.filter(storyid = story.id)
+		text = Text.objects.filter(storyid = story.id)
+		profile = User_Info.objects.get(user_id = request.user.id)
 		#Combine result for text and image. Sort according to position
 		combine = sorted(
 						chain(text,image),
@@ -129,34 +156,136 @@ def read_stories(request):
 		args['story'] = story
 		args['items'] = combine
 		args['author'] = person.username
+		args['profile'] = profile
 		return render (request,"read_stories.html",args)
 	else:
 		return HttpRespondeRedirect("/home")
 	
 #Show story from people who you followed	
-def following(request):
+def feed(request):
 	if request.user.is_authenticated():
 		#Create profile for user the first time.
-		user = user,created = User_Info.objects.get_or_create(name = request.user.username,user_id = request.user.id)
+		user,created = User_Info.objects.get_or_create(username = request.user.username,user_id = request.user.id)
 		#Get the data streams for the user
 		import user_streams
-		items = user_streams.get_stream_items(request.user)
+		items = user_streams.get_stream_feed(request.user)
 		imagelist = []
 		storylist = []
 		for item in items:
+			#Split the string into the user id and story id
 			object = item.content.split(":")
-			if object[0] == "story":
-				story = Story.objects.get(storyid = object[1])
-				image = Image.objects.filter(storyid = story.storyid).first()
-				imagelist.append(image)
-				storylist.append(story)
-		
+			story = Story.objects.get(storyid = object[1])
+			image = Image.objects.filter(storyid = story.id).first()
+			imagelist.append(image)
+			storylist.append(story)
+		profile = User_Info.objects.get(user_id = request.user.id)
 		list = zip(storylist,imagelist)
 		args = {}
 		args['list'] = list
+		args['profile'] = profile
+		return render (request,"feed.html",args)
+	else:
+		return HttpResponseRedirect("/accounts/login/")
+
+#Show what people you followed are doing
+def following(request):
+	if request.user.is_authenticated():
+		#Get the data streams for the user
+		import user_streams
+		items = user_streams.get_stream_following(request.user)
+		imagelist = []
+		storylist = []
+		profile = User_Info.objects.get(user_id = request.user.id)
+		list = zip(storylist,imagelist)
+		args = {}
+		args['list'] = list
+		args['profile'] = profile
 		return render (request,"following.html",args)
 	else:
 		return HttpResponseRedirect("/accounts/login/")
+
+#Show notifaction 
+def notification(request):
+	if request.user.is_authenticated():
+		#Get the data streams for the user
+		import user_streams
+		items = user_streams.get_stream_items(request.user)
+		list = []
+		for item in items:
+			#Split the string for info about the user.
+			object = item.content.split(":")
+			#Get the username from the id
+			username = User.objects.get(id=object[0])
+			data = {}
+			data['username'] = username
+			data['topic'] = object[1]
+
+			if len(object) == 3:
+				data['story'] = object[2]
+			list.append(data)
+		profile = User_Info.objects.get(user_id = request.user.id)
+		args = {}
+		args['list'] = list
+		args['profile'] = profile
+		return render (request,"notification.html",args)
+	else:
+		return HttpResponseRedirect("/accounts/login/")
+
+#User edit
+def user_edit(request):
+	if request.user.is_authenticated():
+		if request.POST:
+			user_info = EditForm(request.POST)
+			if user_info.is_valid():
+				if not (User.objects.filter(username = user_info.cleaned_data['username']).exists()):
+					auth_user = User.objects.get(id = request.user.id)
+					user = User_Info.objects.get(user_id = request.user.id)
+					#Change data at user info table
+					user.username = user_info.cleaned_data['username']
+					user.desc = user_info.cleaned_data['desc']
+					#Change data at auth_user table
+					auth_user.username = user_info.cleaned_data['username']
+					#Save both to database
+					auth_user.save()
+					user.save()
+					return render_page(request,"user_edit.html",{'form': user_info})
+				else:
+					#Return user already exists error
+					return render_page(request,"error.html",{'form': user_info})
+			else:
+				return render_page(request,"user_edit.html",{'form': user_info})
+		
+		
+		profile = User_Info.objects.get(user_id = request.user.id)
+		form = EditForm()
+		args = {}
+		args['form'] = form
+		args['profile'] = profile
+		return render (request,"user_edit.html",args)
+
+#User Image edit
+def image_edit(request):
+	if request.user.is_authenticated():
+		if request.POST:
+			image_info = EditFormImage(request.POST, request.FILES)
+			if image_info.is_valid():
+				user = User_Info.objects.get(user_id = request.user.id)
+				user.profile_pic = image_info.cleaned_data['profile_pic']
+				print user.profile_pic
+				user.save()
+				return render_page(request,"image_edit.html",{'form': image_info})
+			else:
+				print image_info
+				return render_page(request,"image_edit.html",{'form': image_info})
+		
+		
+		profile = User_Info.objects.get(user_id = request.user.id)
+		form = EditFormImage()
+		args = {}
+		args['form'] = form
+		args['profile'] = profile
+		return render (request,"image_edit.html",args)
+				
 
 #Show the user profile given the url
 def user_profile(request):
@@ -172,7 +301,7 @@ def user_profile(request):
 			imagelist = []
 			for story in stories:
 				#Get the first image of every story and append to image list.
-				image = Image.objects.filter(storyid = story.storyid).first()
+				image = Image.objects.filter(storyid = story.id).first()
 				imagelist.append(image)
 				
 			list = zip(stories,imagelist)
@@ -196,11 +325,13 @@ def user_profile(request):
 				
 			args = {}
 			args.update(csrf(request))
+			profile = User_Info.objects.get(user_id = request.user.id)
 			args['storycount'] = storycount
 			args['list'] = list
 			args['followingcount'] = followingcount
 			args['followerscount'] = followercount
-			args['profile'] = person
+			args['profile'] = profile
+			args['person'] = person
 			args['user'] = request.user
 			args['item'] = item
 		return render (request,"user_profile.html",args)
@@ -231,8 +362,12 @@ def follow(request):
 		#Get the person object for both of the person
 		profileuser,profilecreated   = Person.objects.get_or_create(id = person.id,name_id = person.id)
 		user,usercreated = Person.objects.get_or_create(id = user.id,name_id = user.id)
-		#Remove their relationship
+		#Add their relationship
 		user.add_relationship(profileuser,RELATIONSHIP_FOLLOWING)
+		#Notify the person that the user has followed him
+		import user_streams
+		user_streams.add_stream_item(person,str(request.user.id) + ':has followed you')
+		#Reply to ajax
 		import json
 		data = {}
 		data['string'] = '<button type="button" class="btn btn-success item" id = "unfollow" value = "' + person.username +' ">Unfollow</button>'

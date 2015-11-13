@@ -51,7 +51,10 @@ INSTALLED_APPS = (
 	'sorl.thumbnail',
 	'user_streams',
 	'user_streams.backends.user_streams_many_to_many_backend',
+	'django.contrib.sites',
+	'django_comments',
 )
+SITE_ID = 1
 USER_STREAMS_BACKEND = 'user_streams.backends.user_streams_many_to_many_backend.ManyToManyDatabaseBackend'
 ACCOUNT_ACTIVATION_DAYS = 7
 

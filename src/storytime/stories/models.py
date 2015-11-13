@@ -15,16 +15,17 @@ def get_upload_file_name(instance,filename):
 class Story(models.Model):
 	user = models.ForeignKey(settings.AUTH_USER_MODEL)
 	datetime = models.DateTimeField(auto_now_add=True, blank=False)
-	star = models.IntegerField(null=True)
+	starcount = models.IntegerField(null=True)
 	title = models.CharField(max_length = 200)
 	storyid = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
+	complete = models.BooleanField(default=False)
 	
 #Text will be inside story
 class Text(models.Model):
 	id = models.AutoField(primary_key=True)
 	text = models.CharField(max_length = 200)
 	position = models.IntegerField(default = 0)
-	storyid = models.UUIDField(default=uuid.uuid4)
+	storyid = models.ForeignKey(Story)
 	username = models.CharField(max_length = 50)
 	
 	
@@ -33,11 +34,11 @@ class Text(models.Model):
 class Image(models.Model):
 	source = models.ImageField(upload_to = get_upload_file_name)
 	position = models.IntegerField(default = 0)
-	storyid = models.UUIDField(default=uuid.uuid4)
+	storyid = models.ForeignKey(Story)
 	username = models.CharField(max_length = 50)
 
 class User_Info(models.Model):
-	name = models.CharField(max_length = 200)
+	username = models.CharField(max_length = 200)
 	user = models.OneToOneField(settings.AUTH_USER_MODEL,primary_key=True)
 	desc = models.CharField(max_length = 200)
 	profile_pic = models.ImageField(upload_to = get_upload_file_name)
@@ -89,3 +90,8 @@ class Relationship(models.Model):
     from_person = models.ForeignKey(Person, related_name='from_people')
     to_person = models.ForeignKey(Person, related_name='to_people')
     status = models.IntegerField(choices=RELATIONSHIP_STATUSES)
+	
+class Star(models.Model):
+	storyid = models.ForeignKey(Story)
+	user_id = models.ForeignKey(settings.AUTH_USER_MODEL)
+	
