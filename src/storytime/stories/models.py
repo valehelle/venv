@@ -8,7 +8,7 @@ from sorl.thumbnail import ImageField
 # Create your models here.
 #Return the name to the Image file.
 def get_upload_file_name(instance,filename):
-	return "media/" + str(instance.username) + "/%s_%s" % (str(time()).replace('.','_'),filename)
+	return "media/" + str(instance.user_id) + "/%s_%s" % (str(time()).replace('.','_'),filename)
 
 
 # User can have multiple story
@@ -26,7 +26,7 @@ class Text(models.Model):
 	text = models.CharField(max_length = 200)
 	position = models.IntegerField(default = 0)
 	storyid = models.ForeignKey(Story)
-	username = models.CharField(max_length = 50)
+	user = models.ForeignKey(settings.AUTH_USER_MODEL,default = 1)
 	
 	
 	
@@ -35,13 +35,18 @@ class Image(models.Model):
 	source = models.ImageField(upload_to = get_upload_file_name)
 	position = models.IntegerField(default = 0)
 	storyid = models.ForeignKey(Story)
-	username = models.CharField(max_length = 50)
+	user = models.ForeignKey(settings.AUTH_USER_MODEL,default = 1)
+	
+class Profile_Image(models.Model):
+	user = models.ForeignKey(settings.AUTH_USER_MODEL)
+	image = models.ImageField(upload_to = get_upload_file_name,default='media/default/UserIconBlack.png')
+	used = models.BooleanField(default=True)
 
 class User_Info(models.Model):
 	username = models.CharField(max_length = 200)
 	user = models.OneToOneField(settings.AUTH_USER_MODEL,primary_key=True)
 	desc = models.CharField(max_length = 200)
-	profile_pic = models.ImageField(upload_to = get_upload_file_name)
+	profile_pic = models.ForeignKey(Profile_Image,null=True)
 	
 class Person(models.Model):
 	name = models.ForeignKey(settings.AUTH_USER_MODEL)
@@ -94,4 +99,5 @@ class Relationship(models.Model):
 class Star(models.Model):
 	storyid = models.ForeignKey(Story)
 	user_id = models.ForeignKey(settings.AUTH_USER_MODEL)
-	
+
+

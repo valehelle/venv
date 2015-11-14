@@ -1,5 +1,5 @@
 from django import forms
-from models import Text,Image,Story,User_Info
+from models import Text,Image,Story,User_Info,Profile_Image
 
 class StoryForm(forms.ModelForm):
 	class Meta:
@@ -9,12 +9,12 @@ class StoryForm(forms.ModelForm):
 class TextForm(forms.ModelForm):
 	class Meta:
 		model = Text
-		exclude = ("storyid","username","textid")
+		exclude = ("storyid","user","textid")
 		
 class ImageForm(forms.ModelForm):
 	class Meta:
 		model = Image
-		exclude = ("storyid","username","imageid")
+		exclude = ("storyid","user","imageid")
 		
 class EditForm(forms.ModelForm):
 	class Meta:
@@ -23,5 +23,5 @@ class EditForm(forms.ModelForm):
 		
 class EditFormImage(forms.ModelForm):
 	class Meta:
-		model = User_Info
-		exclude = ("user","desc","username")
+		model = Profile_Image
+		exclude = ("user","used")

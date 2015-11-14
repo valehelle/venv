@@ -53,6 +53,7 @@ INSTALLED_APPS = (
 	'user_streams.backends.user_streams_many_to_many_backend',
 	'django.contrib.sites',
 	'django_comments',
+	'last_seen',
 )
 SITE_ID = 1
 USER_STREAMS_BACKEND = 'user_streams.backends.user_streams_many_to_many_backend.ManyToManyDatabaseBackend'
@@ -69,8 +70,8 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.security.SecurityMiddleware',
+	'last_seen.middleware.LastSeenMiddleware',
 )
-
 ROOT_URLCONF = 'storytime.urls'
 
 TEMPLATES = [

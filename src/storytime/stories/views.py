@@ -2,12 +2,14 @@ from django.shortcuts import render
 from forms import TextForm,ImageForm,StoryForm,EditForm,EditFormImage
 from django.template.context_processors import csrf
 from django.forms.formsets import formset_factory
-from models import Story,Text,Image,Person,RELATIONSHIP_FOLLOWING,User_Info
+from models import Story,Text,Image,Person,RELATIONSHIP_FOLLOWING,User_Info,Profile_Image
 from django.contrib.auth.models import User
 from django.http import HttpResponseRedirect, HttpResponse
 from django.contrib.auth.views import login
 from django_comments.views.comments import post_comment
 from django_comments.models import Comment
+
+
 
 def custom_posted(request):
 	if request.GET:
@@ -59,7 +61,7 @@ def create_stories(request):
 					if text.is_valid():
 						addtext = text.save(commit = False)
 						addtext.storyid_id = story.id
-						addtext.username = current_user.username
+						addtext.user = current_user
 						addtext.position = p
 						addtext.text = f
 						list_form.append(addtext);
@@ -77,7 +79,7 @@ def create_stories(request):
 					if form.is_valid():
 						addimage = form.save(commit = False)
 						addimage.storyid_id = story.id
-						addimage.username = current_user.username
+						addimage.user = current_user
 						addimage.position = p
 						list_form.append(addimage);
 					else:
@@ -180,9 +182,11 @@ def feed(request):
 			storylist.append(story)
 		profile = User_Info.objects.get(user_id = request.user.id)
 		list = zip(storylist,imagelist)
+		notification = get_notification(request)
 		args = {}
 		args['list'] = list
 		args['profile'] = profile
+		args['notification'] = notification
 		return render (request,"feed.html",args)
 	else:
 		return HttpResponseRedirect("/accounts/login/")
@@ -204,33 +208,60 @@ def following(request):
 	else:
 		return HttpResponseRedirect("/accounts/login/")
 
+
 #Show notifaction 
 def notification(request):
 	if request.user.is_authenticated():
-		#Get the data streams for the user
-		import user_streams
-		items = user_streams.get_stream_items(request.user)
-		list = []
-		for item in items:
-			#Split the string for info about the user.
-			object = item.content.split(":")
-			#Get the username from the id
-			username = User.objects.get(id=object[0])
-			data = {}
-			data['username'] = username
-			data['topic'] = object[1]
-
-			if len(object) == 3:
-				data['story'] = object[2]
-			list.append(data)
+		list = get_notification(request)
+		count = get_notification_count(request)
 		profile = User_Info.objects.get(user_id = request.user.id)
 		args = {}
-		args['list'] = list
+		args['notification'] = list
 		args['profile'] = profile
+		args['count'] = count
 		return render (request,"notification.html",args)
 	else:
 		return HttpResponseRedirect("/accounts/login/")
 
+#Update last seen
+def update_seen(request):
+	from last_seen.models import LastSeen
+	from django.utils import timezone
+	seen = LastSeen.objects.get(user=request.user)
+	seen.last_seen = timezone.now()
+	seen.save()
+
+#Function to retrieve the notification list
+def get_notification_count(request):
+	#Get user last seen
+	from last_seen.models import LastSeen
+	seen = LastSeen.objects.when(user=request.user)
+	#Get the data streams for the user
+	import user_streams
+	count = user_streams.get_stream_items(request.user).filter(created_at__gte = seen).count()
+	return count
+	
+#Function to retrieve the notification list
+def get_notification(request):
+	#Get the data streams for the user
+	import user_streams
+	items = user_streams.get_stream_items(request.user)
+	list = []
+	for item in items:
+		#Split the string for info about the user.
+		object = item.content.split(":")
+		#Get the username from the id
+		username = User.objects.get(id=object[0])
+		data = {}
+		data['username'] = username
+		data['topic'] = object[1]
+
+		if len(object) == 3:
+			data['story'] = object[2]
+		list.append(data)
+	return list
+
+		
 #User edit
 def user_edit(request):
 	if request.user.is_authenticated():
@@ -269,9 +300,13 @@ def image_edit(request):
 		if request.POST:
 			image_info = EditFormImage(request.POST, request.FILES)
 			if image_info.is_valid():
+				image = image_info.save(commit = False)
+				image.user_id = request.user.id
+				#Create the image
+				image.save()
+				#Edit the user to point to the newly created image
 				user = User_Info.objects.get(user_id = request.user.id)
-				user.profile_pic = image_info.cleaned_data['profile_pic']
-				print user.profile_pic
+				user.profile_pic = image
 				user.save()
 				return render_page(request,"image_edit.html",{'form': image_info})
 			else:

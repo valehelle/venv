@@ -9,11 +9,14 @@
 	<br>
 	<div class = "row">
 		<div class = "col-lg-8 col-lg-push-2">
-			<div class = "col-lg-4" style = "display:block;">
-				{% thumbnail person.profile_pic "330x330" crop="center" as im %}
-					<img class="img-circle img-responsive" style="height: 130px; width: 130px;margin-left:auto;margin-right:auto;"  src="{{im.url}}">
-				{% endthumbnail %}
-				
+			<div class = "col-lg-4" style = "display:block;">	
+					{% if profile.profile_pic.image %}
+						{% thumbnail profile.profile_pic.image "330x330" crop="center" as im %}
+							<img class = "img-circle img-responsive user-pic" style="height: 130px; width: 130px"  src = "{{im.url}}" data-toggle="dropdown" /> 
+						{% endthumbnail %}
+					{% else %}
+						<img class = "img-circle img-responsive user-pic" style="height: 130px; width: 130px"  src = "{{MEDIA_URL}}media/default/DefaultIconBlack_1.png" data-toggle="dropdown" /> 
+					{% endif %}
 			</div>
 			<div class = "col-lg-8 userinfo">
 				<div class = "row">
