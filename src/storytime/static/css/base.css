@@ -14,7 +14,7 @@ html,body
 	margin-top: 0.5%;
 	text-align: right;
 }
-#notification{
+.notification{
 	margin-top: 0.7%;
 }
 
@@ -41,4 +41,7 @@ html,body
 .noti{
 	margin-left:10px;
 	margin-right:10px
+}
+textarea {
+    resize: none;
 }

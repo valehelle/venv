@@ -15,7 +15,7 @@ def get_upload_file_name(instance,filename):
 class Story(models.Model):
 	user = models.ForeignKey(settings.AUTH_USER_MODEL)
 	datetime = models.DateTimeField(auto_now_add=True, blank=False)
-	starcount = models.IntegerField(null=True)
+	starcount = models.IntegerField(default = 0)
 	title = models.CharField(max_length = 200)
 	storyid = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
 	complete = models.BooleanField(default=False)
@@ -99,5 +99,6 @@ class Relationship(models.Model):
 class Star(models.Model):
 	storyid = models.ForeignKey(Story)
 	user_id = models.ForeignKey(settings.AUTH_USER_MODEL)
+	status = models.BooleanField(default=True)
 
 

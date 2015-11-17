@@ -18,6 +18,7 @@
 		<script type="text/javascript" src="http://code.jquery.com/jquery-latest.min.js"></script>
 				<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
 		<link rel="stylesheet" type="text/css" href="{% static "css/base.css" %}">
+		<script type="text/javascript" src="{% static "js/base.js"%}"></script>
 		{% block predata %}	
 		<!--Depend on the page it will upload its own css and javascript -->
 		{% endblock %}
@@ -43,10 +44,12 @@
 						</input>
 					</div><!-- /input-group -->
 				</div>
-				<div  id = "notification" class="col-lg-2 col-lg-push-1">
-					<div class = "row"  data-toggle="dropdown" data-target="#">
-						<button class="btn btn-primary" type="button">Notification
-						<span>{{count}}</span></button>
+				<div class="col-lg-2 col-lg-push-1 notification">
+					<div class = "row "  data-toggle="dropdown" data-target="#">
+						<div class="col-lg-12 button">
+							<button class="btn btn-primary" type="button" id = "notificationbutton">Notification
+							<span id = "count">{{count}}</span></button>
+						</div>
 					</div>
 					
 					<ul class="dropdown-menu">
@@ -55,10 +58,14 @@
 								{% if noti.story %}
 									<a href = "/stories/read/?s={{noti.story}}"><h4>{{noti.username}} {{noti.topic}}</h4></a>
 								{% else %}
-									<h6 class = "noti">{{noti.username}} {{noti.topic}}</h6>
+									<a href = "/profile?u={{noti.username}}"><h4>{{noti.username}}{{noti.topic}}</h4></a>
 								{% endif %}
 							</li>
 						{% endfor %}
+						<li>
+						<hr>
+						<a href = "/notifications"><h4>See more notification<h4></a>
+						</li>
 					</ul>	
 				</div>
 				<div id = "username" class="col-lg-1 col-lg-push-2">

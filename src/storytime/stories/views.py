@@ -2,14 +2,58 @@ from django.shortcuts import render
 from forms import TextForm,ImageForm,StoryForm,EditForm,EditFormImage
 from django.template.context_processors import csrf
 from django.forms.formsets import formset_factory
-from models import Story,Text,Image,Person,RELATIONSHIP_FOLLOWING,User_Info,Profile_Image
+from models import Story,Text,Image,Person,RELATIONSHIP_FOLLOWING,User_Info,Profile_Image,Star
 from django.contrib.auth.models import User
 from django.http import HttpResponseRedirect, HttpResponse
 from django.contrib.auth.views import login
 from django_comments.views.comments import post_comment
 from django_comments.models import Comment
 
+def stream_following(id,string):
+	#Stream to all users who follows.
+	user,created = Person.objects.get_or_create(name_id = id,id = id)
+	following = user.get_following()
+	import user_streams
+	user_streams.add_stream_following(following, string)
+	
 
+def stream_follower(user,string):
+	#Stream to all users who follows.
+	user,created = Person.objects.get_or_create(name_id = user.id,id = user.id)
+	followers = user.get_followers()
+	import user_streams
+	user_streams.add_stream_feed(followers, string)
+	
+def stream_user(user,string):
+	#Stream to all users who follows.
+	user = User.objects.get(id = user.id)
+	import user_streams
+	user_streams.add_stream_item(user,string)
+
+def add_star(request):
+	if request.POST:
+		#Get the story ID
+		id = request.POST.get("storyid")
+		#Fetch the story
+		story = Story.objects.get(storyid = id)
+		star = story.starcount
+		#Get the star object. If it is not created, create 1 for user.
+		starobject,created = Star.objects.get_or_create(storyid = story,user_id = request.user)
+		if created:
+			#Increment the story star by 1
+			story.starcount = star + 1
+			story.save()
+			#Tell the author of story that the user has star the story
+			stream_user(story,str(request.user.id)+":star your story:"+str(story.storyid))
+			#Tell the user following that the user has star the story
+			stream_following(request.user.id,str(request.user.id)+":star a story:"+str(story.storyid))
+			
+		import json
+		data = {}
+		data['string'] = "<button type=\"button\" class=\"btn btn-success\" id = \"star\" value = \"" + str(story.storyid) + "\">Star <span>" + str(story.starcount) + "</span></button>"
+		return HttpResponse(json.dumps(data), content_type = "application/json")
+			
+		
 
 def custom_posted(request):
 	if request.GET:
@@ -20,15 +64,15 @@ def custom_posted(request):
 		#If another person that is not the author comment, notify the author.
 		if not (user.id == comment.user_id):
 			#Notify the story author that the user has commented.
-			import user_streams
-			user_streams.add_stream_item(user,str(comment.user_id) + ':has commented on your post:' + str(story.storyid))
+			stream_user(user,str(comment.user_id) + ':has commented on your post:' + str(story.storyid))
 			#Notify the follower of the user that the user has commented on this story
-			user,created = Person.objects.get_or_create(name_id = comment.user_id,id = comment.user_id)
-			followers = user.get_followers()
-			user_streams.add_stream_feed(followers, str(comment.user_id) + ':has commented on a story:' + str(story.storyid))
+			stream_following(user.id, str(comment.user_id) + ':has commented on a story:' + str(story.storyid))
+
+		import json
+		data = {}
+		data['string'] = "<div class = \"col-lg-10\"><h5><a href = \"/profile?u=" + comment.user_name + "\">" + comment.user_name + "</a> "  + comment.comment + "</h5><hr></div>"
+		return HttpResponse(json.dumps(data), content_type = "application/json")
 			
-		
-	
 	
 def custom_login(request):
 	if request.user.is_authenticated():
@@ -90,11 +134,8 @@ def create_stories(request):
 				#Change the story complete to true so user can see it.
 				story.complete = True;
 				story.save();
-				#Stream to all users who follows.
-				user,created = Person.objects.get_or_create(name_id = request.user.id,id = request.user.id)
-				followers = user.get_followers()
-				import user_streams
-				user_streams.add_stream_feed(followers, str(request.user.id) + ':' + str(story.storyid))
+				#Stream to all users who follows.				
+				stream_follower(request,str(request.user.id) + ':' + str(story.storyid))
 				
 				return HttpRespondeRedirect('/complete')
 			else:
@@ -111,7 +152,8 @@ def render_page(request,html,form):
 	textform = TextForm()
 	storyform = StoryForm(prefix = "Story")
 	profile = User_Info.objects.get(user_id = request.user.id)
-
+	count = get_notification_count(request)
+	notification = get_notification(request)
 	args = {}
 	#Add csrf security
 	args.update(csrf(request))
@@ -119,6 +161,8 @@ def render_page(request,html,form):
 	args['imageform'] = imageform
 	args['storyform'] = storyform
 	args['profile'] = profile 
+	args['notification'] = notification
+	args['count'] = count
 	
 	#if there is an error add it inside the args
 	if isinstance(form, dict):
@@ -149,16 +193,25 @@ def read_stories(request):
 		person = User.objects.get(id = story.user_id)
 		image = Image.objects.filter(storyid = story.id)
 		text = Text.objects.filter(storyid = story.id)
-		profile = User_Info.objects.get(user_id = request.user.id)
+		profile = User_Info.objects.get(user_id = story.user_id)
+				
+		comment = get_comment(story.id)
+
 		#Combine result for text and image. Sort according to position
 		combine = sorted(
 						chain(text,image),
 						key=attrgetter('position'))
+		count = get_notification_count(request)
+		notification = get_notification(request)
 		args = {}
+		args.update(csrf(request))
 		args['story'] = story
 		args['items'] = combine
 		args['author'] = person.username
 		args['profile'] = profile
+		args['notification'] = notification
+		args['count'] = count
+		args['comments'] = comment
 		return render (request,"read_stories.html",args)
 	else:
 		return HttpRespondeRedirect("/home")
@@ -183,10 +236,12 @@ def feed(request):
 		profile = User_Info.objects.get(user_id = request.user.id)
 		list = zip(storylist,imagelist)
 		notification = get_notification(request)
+		count = get_notification_count(request)
 		args = {}
 		args['list'] = list
 		args['profile'] = profile
 		args['notification'] = notification
+		args['count'] = count
 		return render (request,"feed.html",args)
 	else:
 		return HttpResponseRedirect("/accounts/login/")
@@ -201,9 +256,14 @@ def following(request):
 		storylist = []
 		profile = User_Info.objects.get(user_id = request.user.id)
 		list = zip(storylist,imagelist)
+		notilist = get_notification(request)
+		count = get_notification_count(request)
 		args = {}
+		args.update(csrf(request))
+		args['notification'] = notilist
 		args['list'] = list
 		args['profile'] = profile
+		args['count'] = count
 		return render (request,"following.html",args)
 	else:
 		return HttpResponseRedirect("/accounts/login/")
@@ -213,15 +273,50 @@ def following(request):
 def notification(request):
 	if request.user.is_authenticated():
 		list = get_notification(request)
+		#Get more than 5 notification since this is the notification page
+		mainnotification = get_notification(request,1,10)
 		count = get_notification_count(request)
 		profile = User_Info.objects.get(user_id = request.user.id)
 		args = {}
+		args.update(csrf(request))
 		args['notification'] = list
+		args['mainnotification'] = mainnotification
 		args['profile'] = profile
 		args['count'] = count
 		return render (request,"notification.html",args)
 	else:
 		return HttpResponseRedirect("/accounts/login/")
+
+def load_comment(request):
+	if request.POST:
+		start = request.POST.get('number')
+		id = request.POST.get('id')
+		story = Story.objects.get(storyid=id)
+		comments = get_comment(story.id,int(start))
+		divcom = []
+		for comment in comments:
+			div = "<div class = \"col-lg-10\"><h5><a href = \"/profile?u=" + str(comment['username']) + "\">" + str(comment['username']) + "</a> " + " " + str(comment['comment']) +"</h5><hr>	</div>"
+			divcom.append(div)
+		import json
+		data = {}
+		data['string'] = divcom
+		return HttpResponse(json.dumps(data), content_type = "application/json")
+
+#Get the latest comment
+def get_comment(id,start=1,multiple = 5):
+	end = start * multiple
+	start = end - multiple
+	comments = Comment.objects.filter(object_pk = id).order_by('-id')[start:end]
+	list = []
+	for comment in comments:
+		user = User.objects.get(id = comment.user_id)
+		item = {}
+		item['comment'] = comment.comment
+		item['username'] = user.username
+		list.append(item)
+	list.reverse()
+	return list
+	
 
 #Update last seen
 def update_seen(request):
@@ -230,6 +325,11 @@ def update_seen(request):
 	seen = LastSeen.objects.get(user=request.user)
 	seen.last_seen = timezone.now()
 	seen.save()
+	import json
+	data = {}
+	data['string'] = "True"
+	return HttpResponse(json.dumps(data), content_type = "application/json")
+	
 
 #Function to retrieve the notification list
 def get_notification_count(request):
@@ -240,12 +340,30 @@ def get_notification_count(request):
 	import user_streams
 	count = user_streams.get_stream_items(request.user).filter(created_at__gte = seen).count()
 	return count
-	
+
+def load_notification(request):	
+	if request.POST:
+		start = request.POST.get('number')
+		list = get_notification(request,int(start))
+		divnoti = ""
+		for notification in list:
+			div = "<div class = \"col-lg-8\" style =\"margin-top:20px;\"><div class =\"row\">"		
+			try:
+				div = div + "<a href = \"/stories/read/?s= " + str(notification['story']) + "\"><h4>" + str(notification['username']) + " " + str(notification['topic']) + "</h4></a></div></div>"
+			except AttributeError:
+				div = div  + "<h4>" + str(notification['username']) + " " + str(notification['topic']) + "</h4></div></div>"
+			divnoti = divnoti + div
+		import json
+		data = {}
+		data['string'] = divnoti
+		return HttpResponse(json.dumps(data), content_type = "application/json")
 #Function to retrieve the notification list
-def get_notification(request):
+def get_notification(request,start=1,multiple = 5):	
+	end = start * multiple
+	start = end - multiple
 	#Get the data streams for the user
 	import user_streams
-	items = user_streams.get_stream_items(request.user)
+	items = user_streams.get_stream_items(request.user)[start:end]
 	list = []
 	for item in items:
 		#Split the string for info about the user.
@@ -288,10 +406,14 @@ def user_edit(request):
 		
 		
 		profile = User_Info.objects.get(user_id = request.user.id)
+		list = get_notification(request)
+		count = get_notification_count(request)
 		form = EditForm()
 		args = {}
 		args['form'] = form
 		args['profile'] = profile
+		args['count'] = count
+		args['notification'] = notification
 		return render (request,"user_edit.html",args)
 
 #User Image edit
@@ -315,10 +437,14 @@ def image_edit(request):
 		
 		
 		profile = User_Info.objects.get(user_id = request.user.id)
+		list = get_notification(request)
+		count = get_notification_count(request)
 		form = EditFormImage()
 		args = {}
 		args['form'] = form
 		args['profile'] = profile
+		args['count'] = count
+		args['notification'] = notification
 		return render (request,"image_edit.html",args)
 				
 
@@ -357,7 +483,9 @@ def user_profile(request):
 					item = "Unfollow"
 				except :
 					item = "Follow"
-				
+			
+			notification = get_notification(request)
+			count = get_notification_count(request)
 			args = {}
 			args.update(csrf(request))
 			profile = User_Info.objects.get(user_id = request.user.id)
@@ -369,6 +497,8 @@ def user_profile(request):
 			args['person'] = person
 			args['user'] = request.user
 			args['item'] = item
+			args['count'] = count
+			args['notification'] = notification
 		return render (request,"user_profile.html",args)
 	else:
 		return HttpResponseRedirect("/accounts/login/")
@@ -400,8 +530,7 @@ def follow(request):
 		#Add their relationship
 		user.add_relationship(profileuser,RELATIONSHIP_FOLLOWING)
 		#Notify the person that the user has followed him
-		import user_streams
-		user_streams.add_stream_item(person,str(request.user.id) + ':has followed you')
+		stream_user(person.name_id,str(request.user.id) + ':has followed you')
 		#Reply to ajax
 		import json
 		data = {}

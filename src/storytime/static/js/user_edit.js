@@ -53,7 +53,6 @@ $(document).ready(function() {
                   },
             success: function(result){
 				$( "#follow" ).replaceWith(result.string);
-
             }
 		});
 	});
