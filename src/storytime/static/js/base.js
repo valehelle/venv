@@ -32,7 +32,7 @@ $(document).ready(function() {
 	$(document).on('click','.button #notificationbutton',function(){
         $.ajax({
             type:"POST",
-            url:"profile/update_seen",
+            url:"/profile/update_seen",
             data: {
                     'username': 1
                   },

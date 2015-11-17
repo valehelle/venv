@@ -16,8 +16,8 @@
 		<br>
 		<div class = "row">
 			<div class = "col-lg-2 col-lg-push-3">
-					{% if profile.profile_pic.image %}
-						{% thumbnail profile.profile_pic.image "330x330" crop="center" as im %}
+					{% if author.profile_pic.image %}
+						{% thumbnail author.profile_pic.image "330x330" crop="center" as im %}
 							<img class = "img-circle img-responsive user-pic" style="height: {{im.height}} width: {{im.width}}"  src = "{{im.url}}" data-toggle="dropdown" /> 
 						{% endthumbnail %}
 					{% else %}
@@ -26,7 +26,7 @@
 			</div>
 			<div class = "col-lg-4 col-lg-push-3">
 				<h1>{{story.title}}</h1>
-				<h2>Story by: {{author}} </hr>
+				<h2>Story by: {{author.username}} </hr>
 				<br>
 			</div>
 		</div>
@@ -79,12 +79,29 @@
 				</div>
 				<div class = "col-lg-10 col-lg-push-2">
 					<div class = "col-lg-10 button">
-					<button type="button" class="btn btn-success col-lg-12" id = "oldercomment" value = "{{story.storyid}}" >Load older comment</button>
+					<button type="button" class="btn btn-success col-lg-12" id = "oldercomment" value = "{{story.storyid}}" >Load more comment</button>
+					</div>
+					<div class = "col-lg-10">
+						<br>
+						<hr>
 					</div>
 					<div id = "comment">
 						{% for comment in comments %}
 							<div class = "col-lg-10">
-								<h5><a href = "/profile?u={{comment.username}}">{{comment.username}}</a> {{comment.comment}}</h5>
+								<div class = "col-lg-1" style = "padding-left:0px; padding-right:0px; ">
+									{% if comment.image %}
+										{% thumbnail comment.image "330x330" crop="center" as im %}
+											<img class = "img-circle img-responsive user-pic" style="height:60px; width: 60px; "  src = "{{im.url}}" /> 
+										{% endthumbnail %}
+									{% else %}
+										<img class = "img-circle img-responsive user-pic" style="height:60px;  width: 60px; "  src = "{{MEDIA_URL}}media/default/DefaultIconBlack_1.png" /> 
+									{% endif %}
+								</div>
+								<div class = "col-lg-10">
+									<h4><a href = "/profile?u={{comment.username}}">{{comment.username}}</a> {{comment.comment}}</h4><h6>{{ comment.time}} ago</h6>
+								</div>
+							</div>
+							<div class = "col-lg-10">
 								<hr>
 							</div>
 						{% endfor %}

@@ -8,6 +8,8 @@ from django.http import HttpResponseRedirect, HttpResponse
 from django.contrib.auth.views import login
 from django_comments.views.comments import post_comment
 from django_comments.models import Comment
+from django.utils.timesince import timesince
+from sorl.thumbnail import get_thumbnail
 
 def stream_following(id,string):
 	#Stream to all users who follows.
@@ -61,16 +63,28 @@ def custom_posted(request):
 		comment = Comment.objects.get(id = commentid)
 		story = Story.objects.get(id = comment.object_pk)
 		user = User.objects.get(id = story.user_id)
+		profile = User_Info.objects.get(user_id = comment.user_id)
 		#If another person that is not the author comment, notify the author.
 		if not (user.id == comment.user_id):
 			#Notify the story author that the user has commented.
 			stream_user(user,str(comment.user_id) + ':has commented on your post:' + str(story.storyid))
 			#Notify the follower of the user that the user has commented on this story
 			stream_following(user.id, str(comment.user_id) + ':has commented on a story:' + str(story.storyid))
-
+		
+		#Get time
+		time = timesince(comment.submit_date).split(', ')[0]
 		import json
 		data = {}
-		data['string'] = "<div class = \"col-lg-10\"><h5><a href = \"/profile?u=" + comment.user_name + "\">" + comment.user_name + "</a> "  + comment.comment + "</h5><hr></div>"
+		div = "<div class = \"col-lg-10\"><div class = \"col-lg-1\" style = \"padding-left:0px; padding-right:0px; \">"
+		try:
+			image = profile.profile_pic.image
+			im = get_thumbnail(image, '330x330', crop='center', quality=99)
+			div = div + "<img class =\"img-circle img-responsive user-pic\" style=\"height:60px; width: 60px;\"  src = \"" + im.url + "\" /></div>"
+		except:
+			div = div + "<img class = \"img-circle img-responsive user-pic\" style=\"height:60px;  width: 60px; \"  src = \"/media/media/default/DefaultIconBlack_1.png\" /></div>"
+		div = div + "<div class = \"col-lg-10\"><h4><a href = \"/profile?u=" + str(request.user.username) + "\">" + str(request.user.username) + "</a> " + " " + str(comment.comment) + "<h6>" + time + " ago</h6></h4></div></div><div class = \"col-lg-10\"><hr></div>"
+		
+		data['string'] = div
 		return HttpResponse(json.dumps(data), content_type = "application/json")
 			
 	
@@ -190,10 +204,11 @@ def read_stories(request):
 			
 		#Fetch the data necessary from database
 		story = Story.objects.get(storyid = r_id)
-		person = User.objects.get(id = story.user_id)
 		image = Image.objects.filter(storyid = story.id)
 		text = Text.objects.filter(storyid = story.id)
-		profile = User_Info.objects.get(user_id = story.user_id)
+		profile = User_Info.objects.get(user_id = request.user.id)
+		author = User_Info.objects.get(user_id = story.user_id)
+		
 				
 		comment = get_comment(story.id)
 
@@ -207,7 +222,7 @@ def read_stories(request):
 		args.update(csrf(request))
 		args['story'] = story
 		args['items'] = combine
-		args['author'] = person.username
+		args['author'] = author
 		args['profile'] = profile
 		args['notification'] = notification
 		args['count'] = count
@@ -295,7 +310,15 @@ def load_comment(request):
 		comments = get_comment(story.id,int(start))
 		divcom = []
 		for comment in comments:
-			div = "<div class = \"col-lg-10\"><h5><a href = \"/profile?u=" + str(comment['username']) + "\">" + str(comment['username']) + "</a> " + " " + str(comment['comment']) +"</h5><hr>	</div>"
+			div = "<div class = \"col-lg-10\"><div class = \"col-lg-1\" style = \"padding-left:0px; padding-right:0px; \">"
+			try:
+				image = comment['image']
+				im = get_thumbnail(image, '330x330', crop='center', quality=99)
+				div = div + "<img class =\"img-circle img-responsive user-pic\" style=\"height:60px; width: 60px;\"  src = \"" + im.url + "\" /></div>"
+			except:
+				div = div + "<img class = \"img-circle img-responsive user-pic\" style=\"height:60px;  width: 60px; \"  src = \"/media/media/default/DefaultIconBlack_1.png\" /></div>"
+		
+			div = div + "<div class = \"col-lg-10\"><h4><a href = \"/profile?u=" + str(comment['username']) + "\">" + str(comment['username']) + "</a> " + " " + str(comment['comment']) + "<h6>" + comment['time'] + " ago</h6></h4></div></div><div class = \"col-lg-10\"><hr></div>"
 			divcom.append(div)
 		import json
 		data = {}
@@ -310,9 +333,17 @@ def get_comment(id,start=1,multiple = 5):
 	list = []
 	for comment in comments:
 		user = User.objects.get(id = comment.user_id)
+		profile = User_Info.objects.get(user_id = comment.user_id)
 		item = {}
+		try:
+			item['image'] = profile.profile_pic.image
+		except:
+			image = None
+			item['image'] = image
+			
 		item['comment'] = comment.comment
 		item['username'] = user.username
+		item['time'] = timesince(comment.submit_date).split(', ')[0]
 		list.append(item)
 	list.reverse()
 	return list
