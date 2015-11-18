@@ -4,7 +4,7 @@ html,body
     height: 100%;
     margin: 0px;
     padding: 0px;
-    overflow-x: hidden; 
+
 }
 #search_bar{
 	margin-top: 0.5%;
@@ -31,7 +31,10 @@ html,body
 
 	/*box-shadow: 1px 1px 5px #888888;*/
 }
-
+.btn-success{
+	background: #9ed54c;
+	border-color: #9ed54c;
+}
 .text-white{
 	color: white;
 }
@@ -44,4 +47,7 @@ html,body
 }
 textarea {
     resize: none;
+}
+.text-green{
+	color: #9ed54c;
 }

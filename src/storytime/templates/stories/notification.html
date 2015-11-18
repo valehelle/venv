@@ -2,34 +2,43 @@
 {% load staticfiles %}
 {% load thumbnail %}
 {% block predata %}
-	<link rel="stylesheet" type="text/css" href="{% static "css/option.css" %}">
 	<link rel="stylesheet" type="text/css" href="{% static "css/notification.css" %}">
+	<link rel="stylesheet" type="text/css" href="{% static "css/option.css" %}">
 	<script type="text/javascript" src="{% static "js/notification.js"%}"></script>
 	
 {% endblock %}
 	
 {% block content %}
-	<br>
 	{% include "option.html" %}
-	<div class = "row">
+	<div class = "row" >
 		<div id = "notification">
 			{% for item in mainnotification %}
-				<div class = "col-lg-8" style ="margin-top:20px;">
+				<div class = "col-lg-8 col-lg-push-2" style ="margin-top:20px;  "style = "">
 					<div class = "row">
+						<div class = "col-lg-1" style = "padding-left:0px; padding-right:0px; ">
+						{% if item.image %}
+							{% thumbnail item.image "330x330" crop="center" as im %}
+								<img class = "img-circle img-responsive user-pic" style="height: 50px; width: 50px"  src = "{{im.url}}" data-toggle="dropdown" data-target="#"/> 
+							{% endthumbnail %}
+						{% else %}
+							<img class = "img-circle img-responsive user-pic" style="height: 50px; width: 50px"  src = "{{MEDIA_URL}}media/default/DefaultIconBlack_1.png" data-toggle="dropdown" /> 
+						{% endif %}
+						</div>
 					{% if item.story %}
-						<a href = "/stories/read/?s={{item.story}}"><h4>{{item.username}} {{item.topic}}</h4></a>
+						<h4><a href = "/profile?u={{item.username}}">{{item.username}}</a><a href = "/stories/read/?s={{item.story}}"> {{item.topic}} </a><h6>{{item.time}} ago</h6></h4>
 					{% else %}
-						<h4>{{item.username}} {{item.topic}}</h4>
+						<h4><a href = "/profile?u={{item.username}}">{{item.username}}</a> {{item.topic}}<h6>{{item.time}} ago</h6></h4>
 					{% endif %}
+					<hr>
 					</div>
 				</div>
+
 			{% endfor %}
 		</div>
 		<div class = "row">
-			<div class = "col-lg-8 button">
-				<button type="button" class="btn btn-success" id = "notification">Load more notification</button>
-			</div>
+				<button type="button" class="btn btn-success col-lg-8 col-lg-push-2" id = "notification">Load more notification</button>
 		</div>
+		<br>
 	</div>
 
 {% endblock %}

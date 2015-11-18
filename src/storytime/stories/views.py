@@ -71,6 +71,10 @@ def custom_posted(request):
 			#Notify the follower of the user that the user has commented on this story
 			stream_following(user.id, str(comment.user_id) + ':has commented on a story:' + str(story.storyid))
 		
+		#Increase the comment count
+		count = story.commentcount
+		story.commentcount = count + 1
+		story.save
 		#Get time
 		time = timesince(comment.submit_date).split(', ')[0]
 		import json
@@ -149,7 +153,7 @@ def create_stories(request):
 				story.complete = True;
 				story.save();
 				#Stream to all users who follows.				
-				stream_follower(request,str(request.user.id) + ':' + str(story.storyid))
+				stream_follower(request.user,str(request.user.id) + ':' + str(story.storyid))
 				
 				return HttpRespondeRedirect('/complete')
 			else:
@@ -245,13 +249,23 @@ def feed(request):
 			#Split the string into the user id and story id
 			object = item.content.split(":")
 			story = Story.objects.get(storyid = object[1])
-			image = Image.objects.filter(storyid = story.id).first()
+			user_info = User_Info.objects.get(user_id = story.user_id)
+			image = {}
+			storyimage = Image.objects.filter(storyid = story.id).first()
+			image['story'] = storyimage.source
+			image['time'] = timesince(story.datetime).split(', ')[0]
+			try:
+				image['user'] = user_info.profile_pic.image
+			except:
+				image['user'] = None
+
 			imagelist.append(image)
 			storylist.append(story)
 		profile = User_Info.objects.get(user_id = request.user.id)
 		list = zip(storylist,imagelist)
 		notification = get_notification(request)
 		count = get_notification_count(request)
+
 		args = {}
 		args['list'] = list
 		args['profile'] = profile
@@ -347,7 +361,6 @@ def get_comment(id,start=1,multiple = 5):
 		list.append(item)
 	list.reverse()
 	return list
-	
 
 #Update last seen
 def update_seen(request):
@@ -378,11 +391,20 @@ def load_notification(request):
 		list = get_notification(request,int(start))
 		divnoti = ""
 		for notification in list:
-			div = "<div class = \"col-lg-8\" style =\"margin-top:20px;\"><div class =\"row\">"		
+			div = "<div class = \"col-lg-8 col-lg-push-2\" style =\"margin-top:20px;\"><div class =\"row\"><div class = \"col-lg-1\" style = \"padding-left:0px; padding-right:0px; \">"		
 			try:
-				div = div + "<a href = \"/stories/read/?s= " + str(notification['story']) + "\"><h4>" + str(notification['username']) + " " + str(notification['topic']) + "</h4></a></div></div>"
-			except AttributeError:
-				div = div  + "<h4>" + str(notification['username']) + " " + str(notification['topic']) + "</h4></div></div>"
+				image = notification['image']
+				im = get_thumbnail(image, '330x330', crop='center', quality=99)
+				div = div + "<img class =\"img-circle img-responsive user-pic\" style=\"height:50px; width: 50px;\"  src = \"" + im.url + "\" /></div>"
+			except:
+				div = div + "<img class = \"img-circle img-responsive user-pic\" style=\"height:50px;  width: 50px; \"  src = \"/media/media/default/DefaultIconBlack_1.png\" /></div>"
+			
+			try:
+				div = div + "<h4>" + "<a href=\"/profile?u=" + str(notification['username']) + "\">" + str(notification['username']) + "</a>" + "<a href = \"/stories/read/?s=" + str(notification['story']) + "\">" + " " + str(notification['topic']) + "</a></h4>"
+			except :
+				div = div  + "<h4>" + "<a href=\"/profile?u=" + str(notification['username']) + "\"> " +  str(notification['username']) + "</a> " + str(notification['topic']) + "</h4>"
+
+			div = div + "<h6>" + notification['time'] + " ago</h6><hr></div></div>"
 			divnoti = divnoti + div
 		import json
 		data = {}
@@ -401,10 +423,17 @@ def get_notification(request,start=1,multiple = 5):
 		object = item.content.split(":")
 		#Get the username from the id
 		username = User.objects.get(id=object[0])
+		profile = User_Info.objects.get(user_id = object[0])
 		data = {}
+		try:
+			data['image'] = profile.profile_pic.image
+		except:
+			image = None
+			data['image'] = image
+			
 		data['username'] = username
 		data['topic'] = object[1]
-
+		data['time'] = timesince(item.created_at).split(', ')[0]
 		if len(object) == 3:
 			data['story'] = object[2]
 		list.append(data)
@@ -549,6 +578,7 @@ def unfollow(request):
 		data = {}
 		data['string'] = '<button type="button" class="btn btn-success item" id = "follow" value = "' + person.username + '">Follow</button>'
 		return HttpResponse(json.dumps(data), content_type = "application/json")
+		
 #Handle unfollow request	
 def follow(request):
 	if request.POST:

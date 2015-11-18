@@ -3,13 +3,13 @@
 {% load thumbnail %}
 {% block predata %}
 	<link rel="stylesheet" type="text/css" href="{% static "css/option.css" %}">
+	<link rel="stylesheet" type="text/css" href="{% static "css/option_2.css" %}">
 	<link rel="stylesheet" type="text/css" href="{% static "css/following.css" %}">
 	<script type="text/javascript" src="{% static "js/following.js"%}"></script>
 	
 {% endblock %}
 	
 {% block content %}
-	<br>
 	{% include "option.html" %}
 	<div>
 		{% for story,image in list %}

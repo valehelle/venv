@@ -30,7 +30,7 @@ $(document).ready(function() {
 	});
 	
 	number = 3;
-	$(document).on('click','.button #notification',function(){
+	$(document).on('click',' #notification',function(){
         $.ajax({
             type:"POST",
             url:"/load_notification/",
