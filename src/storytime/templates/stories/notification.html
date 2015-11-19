@@ -10,29 +10,38 @@
 	
 {% block content %}
 	{% include "option.html" %}
-	<div class = "row" >
+	<div>
 		<div id = "notification">
 			{% for item in mainnotification %}
-				<div class = "col-lg-8 col-lg-push-2" style ="margin-top:20px;  "style = "">
-					<div class = "row">
-						<div class = "col-lg-1" style = "padding-left:0px; padding-right:0px; ">
+				<div class = "col-lg-12" >
+						<div class = "col-lg-1">
 						{% if item.image %}
 							{% thumbnail item.image "330x330" crop="center" as im %}
-								<img class = "img-circle img-responsive user-pic" style="height: 50px; width: 50px"  src = "{{im.url}}" data-toggle="dropdown" data-target="#"/> 
+								<img class = "img-circle img-responsive user-pic" style="height: 60px; width: 60px"  src = "{{im.url}}" data-toggle="dropdown" data-target="#"/> 
 							{% endthumbnail %}
 						{% else %}
-							<img class = "img-circle img-responsive user-pic" style="height: 50px; width: 50px"  src = "{{MEDIA_URL}}media/default/DefaultIconBlack_1.png" data-toggle="dropdown" /> 
+							<img class = "img-circle img-responsive user-pic" style="height: 60px; width: 60px"  src = "{{MEDIA_URL}}media/default/DefaultIconBlack_1.png" data-toggle="dropdown" /> 
 						{% endif %}
 						</div>
 					{% if item.story %}
-						<h4><a href = "/profile?u={{item.username}}">{{item.username}}</a><a href = "/stories/read/?s={{item.story}}"> {{item.topic}} </a><h6>{{item.time}} ago</h6></h4>
+						<div class = "col-lg-6">
+							<h3><a href = "/profile?u={{item.username}}">{{item.username}}</a> {{item.topic}}<h6>{{item.time}} ago</h6></h3>
+						</div>
+						<div class = "col-lg-1">
+							{% thumbnail item.story_image "330x330" crop="center" as im %}
+								<a href = "/stories/read/?s={{item.story}}"><img class = "img-rounded img-responsive" style="height: 60px; width: 60px;"  src = "{{im.url}}" /></a> 
+							{% endthumbnail %}
+						</div>
 					{% else %}
-						<h4><a href = "/profile?u={{item.username}}">{{item.username}}</a> {{item.topic}}<h6>{{item.time}} ago</h6></h4>
+						<div class = "col-lg-6">
+							<h3><a href = "/profile?u={{item.username}}">{{item.username}}</a> {{item.topic}}<h6>{{item.time}} ago</h6></h3>
+						</div>
 					{% endif %}
-					<hr>
+					<div class = "col-lg-12">
+						<hr>
 					</div>
+					
 				</div>
-
 			{% endfor %}
 		</div>
 		<div class = "row">

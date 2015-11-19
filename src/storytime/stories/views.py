@@ -11,26 +11,28 @@ from django_comments.models import Comment
 from django.utils.timesince import timesince
 from sorl.thumbnail import get_thumbnail
 
-def stream_following(id,string):
+def stream_readers(id,string):
 	#Stream to all users who follows.
 	user,created = Person.objects.get_or_create(name_id = id,id = id)
-	following = user.get_following()
+	followers = user.get_followers()
 	import user_streams
-	user_streams.add_stream_following(following, string)
+	user_streams.add_stream_following(followers, string)
+	return True
 	
 
-def stream_follower(user,string):
+def stream_feed(id,string):
 	#Stream to all users who follows.
-	user,created = Person.objects.get_or_create(name_id = user.id,id = user.id)
+	user,created = Person.objects.get_or_create(name_id = id,id = id)
 	followers = user.get_followers()
 	import user_streams
 	user_streams.add_stream_feed(followers, string)
 	
-def stream_user(user,string):
+def stream_user(id,string):
 	#Stream to all users who follows.
-	user = User.objects.get(id = user.id)
+	user = User.objects.get(id = id)
 	import user_streams
 	user_streams.add_stream_item(user,string)
+	return True
 
 def add_star(request):
 	if request.POST:
@@ -46,9 +48,9 @@ def add_star(request):
 			story.starcount = star + 1
 			story.save()
 			#Tell the author of story that the user has star the story
-			stream_user(story,str(request.user.id)+":star your story:"+str(story.storyid))
+			stream_user(story.user_id,str(request.user.id)+":star your story:"+str(story.storyid))
 			#Tell the user following that the user has star the story
-			stream_following(request.user.id,str(request.user.id)+":star a story:"+str(story.storyid))
+			stream_readers(request.user.id,str(request.user.id)+":star a story:"+str(story.storyid))
 			
 		import json
 		data = {}
@@ -67,14 +69,13 @@ def custom_posted(request):
 		#If another person that is not the author comment, notify the author.
 		if not (user.id == comment.user_id):
 			#Notify the story author that the user has commented.
-			stream_user(user,str(comment.user_id) + ':has commented on your post:' + str(story.storyid))
+			stream_user(user.id,str(comment.user_id) + ':has commented on your story:' + str(story.storyid))
 			#Notify the follower of the user that the user has commented on this story
-			stream_following(user.id, str(comment.user_id) + ':has commented on a story:' + str(story.storyid))
-		
+			stream_readers(request.user.id, str(comment.user_id) + ':has commented on a story:' + str(story.storyid))
 		#Increase the comment count
 		count = story.commentcount
 		story.commentcount = count + 1
-		story.save
+		story.save()
 		#Get time
 		time = timesince(comment.submit_date).split(', ')[0]
 		import json
@@ -153,7 +154,7 @@ def create_stories(request):
 				story.complete = True;
 				story.save();
 				#Stream to all users who follows.				
-				stream_follower(request.user,str(request.user.id) + ':' + str(story.storyid))
+				stream_feed(request.user.id,str(request.user.id) + ':' + str(story.storyid))
 				
 				return HttpRespondeRedirect('/complete')
 			else:
@@ -275,23 +276,90 @@ def feed(request):
 	else:
 		return HttpResponseRedirect("/accounts/login/")
 
+#Show story from people who you starred	
+def bookmark(request):
+	if request.user.is_authenticated():
+		#Create profile for user the first time.
+		stars = Star.objects.filter(user_id = request.user.id)
+		
+		imagelist = []
+		storylist = []
+		for item in stars:
+			story = Story.objects.get(id = item.storyid_id)
+			user_info = User_Info.objects.get(user_id = story.user_id)
+			image = {}
+			storyimage = Image.objects.filter(storyid = story.id).first()
+			image['story'] = storyimage.source
+			image['time'] = timesince(story.datetime).split(', ')[0]
+			try:
+				image['user'] = user_info.profile_pic.image
+			except:
+				image['user'] = None
+
+			imagelist.append(image)
+			storylist.append(story)
+		profile = User_Info.objects.get(user_id = request.user.id)
+		list = zip(storylist,imagelist)
+		notification = get_notification(request)
+		count = get_notification_count(request)
+
+		args = {}
+		args['list'] = list
+		args['profile'] = profile
+		args['notification'] = notification
+		args['count'] = count
+		return render (request,"bookmark.html",args)
+	else:
+		return HttpResponseRedirect("/accounts/login/")
+		
+
 #Show what people you followed are doing
 def following(request):
 	if request.user.is_authenticated():
 		#Get the data streams for the user
 		import user_streams
 		items = user_streams.get_stream_following(request.user)
-		imagelist = []
+		personlist = []
 		storylist = []
+		for item in items:
+			#Split the string into the user id and story id
+			object = item.content.split(":")
+			#Get the first user.
+			user1 = User.objects.get(id = object[0])
+			hash = {}
+			hash['user1'] = user1.username
+			user_info_1 = User_Info.objects.get(user_id = user1.id)
+
+			#Try to get the story object if it is a story
+			try:
+				story = Story.objects.get(storyid = object[2])
+				user_info_2 = User_Info.objects.get(user_id = story.user_id)
+				storyimage = Image.objects.filter(storyid = story.id).first()
+				hash['story'] = storyimage.source
+				
+			#If fail then it is a follow/star
+			except:
+				story = None
+				user2 = User.objects.get(id = object[2])
+				hash['user2'] = user2.username
+			hash['time'] = timesince(item.created_at).split(', ')[0]
+			hash['content'] = object[1]
+			try:
+				hash['user_image'] = user_info_1.profile_pic.image
+			except:
+				hash['user_image'] = None
+
+			personlist.append(hash)
+			storylist.append(story)
 		profile = User_Info.objects.get(user_id = request.user.id)
-		list = zip(storylist,imagelist)
-		notilist = get_notification(request)
+		list = zip(storylist,personlist)
+		notification = get_notification(request)
 		count = get_notification_count(request)
+
 		args = {}
-		args.update(csrf(request))
-		args['notification'] = notilist
 		args['list'] = list
 		args['profile'] = profile
+		args['notification'] = notification
 		args['count'] = count
 		return render (request,"following.html",args)
 	else:
@@ -435,6 +503,9 @@ def get_notification(request,start=1,multiple = 5):
 		data['topic'] = object[1]
 		data['time'] = timesince(item.created_at).split(', ')[0]
 		if len(object) == 3:
+			story = Story.objects.get(storyid = object[2])
+			image = Image.objects.filter(storyid = story.id).first()
+			data['story_image'] = image.source
 			data['story'] = object[2]
 		list.append(data)
 	return list
@@ -591,7 +662,9 @@ def follow(request):
 		#Add their relationship
 		user.add_relationship(profileuser,RELATIONSHIP_FOLLOWING)
 		#Notify the person that the user has followed him
-		stream_user(person.name_id,str(request.user.id) + ':has followed you')
+		stream_user(person.id,str(request.user.id) + ':has become your reader')
+		#Notify user followers that the user has folllowed this person
+		stream_readers(request.user.id,str(request.user.id) + ":has become a reader of:" + str(person.id))
 		#Reply to ajax
 		import json
 		data = {}

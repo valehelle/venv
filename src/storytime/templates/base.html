@@ -58,7 +58,7 @@
 								{% if noti.story %}
 									<a href = "/stories/read/?s={{noti.story}}"><h4>{{noti.username}} {{noti.topic}}</h4></a>
 								{% else %}
-									<a href = "/profile?u={{noti.username}}"><h4>{{noti.username}}{{noti.topic}}</h4></a>
+									<a href = "/profile?u={{noti.username}}"><h4>{{noti.username}} {{noti.topic}}</h4></a>
 								{% endif %}
 							</li>
 						{% endfor %}
