@@ -1,23 +1,52 @@
-
 {
-    "glossary": {
-        "title": "example glossary",
-		"GlossDiv": {
-            "title": "S",
-			"GlossList": {
-                "GlossEntry": {
-                    "ID": "SGML",
-					"SortAs": "SGML",
-					"GlossTerm": "Standard Generalized Markup Language",
-					"Acronym": "SGML",
-					"Abbrev": "ISO 8879:1986",
-					"GlossDef": {
-                        "para": "A meta-markup language, used to create markup languages such as DocBook.",
-						"GlossSeeAlso": ["GML", "XML"]
-                    },
-					"GlossSee": "markup"
-                }
+        events:[
+            {
+                name: 'Afterglow Run ',
+                registerEndDate: '15/8/2017',
+                eventStartDate: '1/9/2017',
+                eventEndDate: '27/9/2017',
+                image: [
+                    'http://www.ultravrunner.com/shared/race/Afterglow/afterglow%20poster_for%20website-02.jpg'
+                ],
+                distance: '60',
+                url: 'http://www.ultravrunner.com/race-detail?pid=857',
+                id: 1,
+            },
+            {
+                name: 'Afterglow Run ',
+                registerEndDate: '15/8/2017',
+                eventStartDate: '1/9/2017',
+                eventEndDate: '27/9/2017',
+                image: [
+                    'http://www.ultravrunner.com/shared/race/Afterglow/afterglow%20poster_for%20website-02.jpg'
+                ],
+                distance: '60',
+                url: 'http://www.ultravrunner.com/race-detail?pid=857',
+                id: 2,
+            },
+            {
+                name: 'Afterglow Run ',
+                registerEndDate: '15/8/2017',
+                eventStartDate: '1/9/2017',
+                eventEndDate: '27/9/2017',
+                image: [
+                    'http://www.ultravrunner.com/shared/race/Afterglow/afterglow%20poster_for%20website-02.jpg'
+                ],
+                distance: '60',
+                url: 'http://www.ultravrunner.com/race-detail?pid=857',
+                id: 3,
+            },
+            {
+                name: 'Afterglow Run ',
+                registerEndDate: '15/8/2017',
+                eventStartDate: '1/9/2017',
+                eventEndDate: '27/9/2017',
+                image: [
+                    'http://www.ultravrunner.com/shared/race/Afterglow/afterglow%20poster_for%20website-02.jpg'
+                ],
+                distance: '60',
+                url: 'http://www.ultravrunner.com/race-detail?pid=857',
+                id: 4,
             }
-        }
+        ]
     }
-}
