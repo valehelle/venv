@@ -1,7 +1,7 @@
 {
    "events": [
       {
-         "name": "Afterglow Run ",
+         "name": "Afterglow Run",
          "registerEndDate": "15/8/2017",
          "eventStartDate": "1/9/2017",
          "eventEndDate": "27/9/2017",
@@ -10,7 +10,73 @@
          ],
          "distance": "60",
          "url": "http://www.ultravrunner.com/race-detail?pid=857",
-         "id": 1
-      }
+         "id": 1,
+		 "price": "85"
+      },
+      {
+         "name": "Panda Virtual Run",
+         "registerEndDate": "28/7/2017",
+         "eventStartDate": "28/7/2017",
+         "eventEndDate": "30/7/2017",
+         "image": [
+            "https://virtual-race-submissions.s3-ap-southeast-1.amazonaws.com/images/panda-01-meitu-1-jpg-9dx23062017-95954"
+         ],
+         "distance": "5, 10, 21, 42",
+         "url": "https://web.42race.com/races/virtual/pandarun",
+         "id": 2,
+		 "price": "29.9"
+      },
+      {
+         "name": "Guardians of the District",
+         "registerEndDate": "30/8/2017",
+         "eventStartDate": "31/8/2017",
+         "eventEndDate": "3/9/2017",
+         "image": [
+            "https://virtual-race-submissions.s3-ap-southeast-1.amazonaws.com/images/medalbanner-01-meitu-14-jpg-zok21062017-171413"
+         ],
+         "distance": "5, 10, 21, 42",
+         "url": "https://web.42race.com/races/virtual/myindependenceday",
+         "id": 3,
+		 "price": "29.9"
+      },
+      {
+         "name": "Death Race",
+         "registerEndDate": "31/7/2017",
+         "eventStartDate": "1/8/2017",
+         "eventEndDate": "21/3/2018",
+         "image": [
+            "https://scontent.fkul8-1.fna.fbcdn.net/v/t1.0-9/19511291_834417186711357_8820196205600548026_n.jpg?oh=46922fc3e0a71a81a4cba9191dc1983e&oe=59D29FA3"
+         ],
+         "distance": "500",
+         "url": "https://docs.google.com/forms/d/e/1FAIpQLSewND3deV8nDx2uwH0FN95-1iNzpMNEWFkKkcpE_CPPglEwWQ/viewform",
+         "id": 1,
+		 "price": "70"
+      },
+      {
+         "name": "Medal Of Honor",
+         "registerEndDate": "31/7/2017",
+         "eventStartDate": "1/8/2017",
+         "eventEndDate": "31/8/2017",
+         "image": [
+            "http://www.beestorm.com.my/images/banner/doc_1498748006_patriot%202.jpg"
+         ],
+         "distance": "60",
+         "url": "http://www.beestorm.com.my/honor60",
+         "id": 4,
+		 "price": "60"
+      },
+      {
+         "name": " Illusion Run",
+         "registerEndDate": "31/7/2017",
+         "eventStartDate": "1/8/2017",
+         "eventEndDate": "31/8/2017",
+         "image": [
+            "https://scontent.fkul8-1.fna.fbcdn.net/v/t1.0-9/19554029_859897704176923_2589861188449151823_n.png?oh=04b591f45b3f52533c67356afd734beb&oe=59D1FE05"
+         ],
+         "distance": "42",
+         "url": "https://docs.google.com/forms/d/e/1FAIpQLScNPMa_UfCrmTO0UKG-uus4vP7n7tG2As2XP6hEGhUOmiw9KA/viewform",
+         "id": 5,
+		 "price": "65"
+      },
    ]
 }
