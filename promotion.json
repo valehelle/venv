@@ -1,6 +1,19 @@
 {
    "events": [
       {
+         "name": "60TH MERDEKA RUN",
+         "registerEndDate": "15/8/2017",
+         "eventStartDate": "1/8/2017",
+         "eventEndDate": "31/8/2017",
+         "image": [
+            "http://myrunnergo.com/wp-content/uploads/2017/05/MERDEKA-RUN-MEDAL-FRONT.jpg"
+         ],
+         "distance": "31",
+         "url": "http://myrunnergo.com/event/the-beat-clock-42km-run/",
+         "id": 8,
+	 "price": "65"
+      },
+      {
          "name": "Afterglow Run",
          "registerEndDate": "15/8/2017",
          "eventStartDate": "1/9/2017",
