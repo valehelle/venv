@@ -119,7 +119,7 @@ function clearComments(){
 }
 
 function loadComment(comment){
-		$("#comment").append('<div id = ' + comment.id + '><h6 style = "color: #828282;">' + comment.by + ' ' +  time2TimeAgo(comment.time) + ' </h6><h5>' + comment.text + '</h5></div>');
+		$("#comment").append('<div id = ' + comment.id + '><h6 style = "color: #828282;">' + comment.by + ' ' +  time2TimeAgo(comment.time) + ' </h6><h5 style = "margin-top:-5px;">' + comment.text + '</h5></div>');
 		if(comment.kids){
 			loadKids(comment.kids);
 		}
@@ -132,7 +132,7 @@ function getKids(responseText){
 	}
 	var commentID = '#' + comment.parent;
 	if(!comment.deleted){
-		$(commentID).append('<div class = "col-sm-12" id = ' + comment.id + '><h6 style = "color: #828282;">' + comment.by + ' ' +  time2TimeAgo(comment.time) + ' </h6><h5>' + comment.text + '</h5></div>');
+		$(commentID).append('<div class = "col-sm-12" id = ' + comment.id + '><h6 style = "color: #828282;">' + comment.by + ' ' +  time2TimeAgo(comment.time) + ' </h6><h5 style = "margin-top:-5px;">' + comment.text + '</h5></div>');
 	}
 }
 
@@ -168,7 +168,7 @@ function loadBookmark(){
 }
 
 function createTitle(story){
-	$("#content").append('<h5><a  href="' + story.url + '">' + story.title + '</a></h5><h6>' + story.score + ' points by ' + story.by + ' ' + time2TimeAgo(story.time) + ' <a href = "#" onclick=titleClick(' + story.id + ')>Read Comment</a></h6>');
+	$("#content").append('<h5><a  href="' + story.url + '">' + story.title + '</a></h5><h6 style = "margin-top:-5px;">' + story.score + ' points by ' + story.by + ' ' + time2TimeAgo(story.time) + ' <a href = "#" onclick=titleClick(' + story.id + ')>Read Comment</a></h6>');
 }
 
 
