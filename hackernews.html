@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+		<!-- Latest compiled and minified CSS -->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+	<!-- Optional theme -->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+
+	<!-- Latest compiled and minified JavaScript -->
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+</head>
+<body>
+<div class="container-fluid">
+  <h2>Hacker News!</h2>
+  <div class="row">
+	<div class = "col-sm-12">
+		<div class="col-sm-3"  style = "background-color:#ff6600;"><h4>Topics</h4></div>
+		<div class="col-sm-1"  style = "background-color:#ff6600;"><h4 ><a href ="#" style = "color:white;" onClick="topicRefresh()">Refresh</a></h4></div>
+		<div class="col-sm-1"  style = "background-color:#ff6600;"><h4>Tabs</h4></div>
+		<div class="col-sm-1"  style = "background-color:#ff6600;"><h4 style = "text-align: right;"><a href ="#" style = "color:white;" onClick="clearTabs()">Clear</a></h4></div>
+		<div class="col-sm-6"  style = "background-color:#ff6600;"><h4>Comments</h4></div>
+	</div>
+	<div class = "col-sm-12">
+		<div class="col-sm-4" style="background-color:lavender; height: 80vh; overflow:auto;" id = "content"></div>
+		<div class="col-sm-2" style="background-color:#efefef;height: 80vh; overflow:auto;" id = "bookmark"></div>
+		<div class="col-sm-6" style="background-color:#f6f6ef;height: 80vh; overflow:auto;" id = "comment"></div>
+	</div>
+  </div>
+</div>
+
+</body>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script>
+var bookmark = [];
+var storiesHash = {};
+var comments = [];
+function bestStories(responseText){
+	var stories = JSON.parse(responseText);
+	for (var i=0, l=30; i<l; i++) { 
+	  storyID = stories[i];
+	  httpGetAsync('https://hacker-news.firebaseio.com/v0/item/' + storyID + '.json?print=pretty',bestStoriesTitle);
+	}
+}
+function topicRefresh(){
+	clearTopic();
+	getBestStories();
+}
+
+function clearTabs(){
+	clearBookmark();
+	clearComments();
+	bookmark = [];
+}
+
+function getBestStories(){
+	httpGetAsync('https://hacker-news.firebaseio.com/v0/topstories.json?print=pretty',bestStories)
+}
+
+function clearTopic(){
+	var myNode = document.getElementById("content");
+	
+	if(myNode.firstChild){
+		while (myNode.firstChild) {
+			myNode.removeChild(myNode.firstChild);
+		}
+	}
+	storiesHash = {};
+}
+function bestStoriesTitle(responseText){
+	var stories = JSON.parse(responseText);
+	storiesHash[stories.id] = stories
+	createTitle(stories)
+}
+
+function titleClick(storyID){
+	var story = storiesHash[storyID];
+	bookmark.push(story);
+	loadBookmark();
+}
+function bookmarkClick(storyID){
+	var story = storiesHash[storyID];
+	clearComments();
+	highlightTab(storyID);
+	if(story.kids){
+		for (var i=0, l=story.kids.length; i<l; i++) { 
+			var kidID = story.kids[i]
+			httpGetAsync('https://hacker-news.firebaseio.com/v0/item/' + kidID + '.json?print=pretty',getComment);
+		}
+	}
+}
+function highlightTab(storyID){
+	var parent = document.getElementById(storyID).parentElement;
+	var children = parent.children;
+	for(var i = 0;i < children.length; i++){
+		var child = children[i]
+		child.style.backgroundColor = "transparent";
+	} 
+	document.getElementById(storyID).style.backgroundColor = "white";
+}
+
+function getComment(responseText){
+	var comment = JSON.parse(responseText);
+	comments.push(comment);
+	loadComment(comment);
+}
+
+function clearComments(){
+	var myNode = document.getElementById("comment");
+	
+	if(myNode.firstChild){
+		while (myNode.firstChild) {
+			myNode.removeChild(myNode.firstChild);
+		}
+	}
+	comments = [];
+}
+
+function loadComment(comment){
+		$("#comment").append('<div id = ' + comment.id + '><h6 style = "color: #828282;">' + comment.by + ' ' +  time2TimeAgo(comment.time) + ' </h6><h5>' + comment.text + '</h5></div>');
+		if(comment.kids){
+			loadKids(comment.kids);
+		}
+}
+
+function getKids(responseText){
+	var comment = JSON.parse(responseText);
+	if(comment.kids){
+		loadKids(comment.kids);
+	}
+	var commentID = '#' + comment.parent;
+	if(!comment.deleted){
+		$(commentID).append('<div class = "col-sm-12" id = ' + comment.id + '><h6 style = "color: #828282;">' + comment.by + ' ' +  time2TimeAgo(comment.time) + ' </h6><h5>' + comment.text + '</h5></div>');
+	}
+}
+
+function loadKids(kids){
+	for (var i=0, l=kids.length; i<l; i++) {
+		var kidID = kids[i];
+		httpGetAsync('https://hacker-news.firebaseio.com/v0/item/' + kidID + '.json?print=pretty',getKids);
+	}
+}
+
+
+function loadLatestBookmarkComment(){
+	var story = bookmark[(bookmark.length - 1)]
+	bookmarkClick(story.id)
+}
+function clearBookmark(){
+	var myNode = document.getElementById("bookmark");
+	
+	if(myNode.firstChild){
+		while (myNode.firstChild) {
+			myNode.removeChild(myNode.firstChild);
+		}
+	}
+}
+function loadBookmark(){
+	clearBookmark();
+
+	for (var i=0, l=bookmark.length; i<l; i++) {
+		var story = bookmark[i];
+		$("#bookmark").append('<div class = "col-sm-12" style = "margin-top:5px;" id = "' + story.id + '"><h5><a onclick=bookmarkClick(' + story.id + ') href="#">' + story.title + '</a></h5></div>');
+	}
+	loadLatestBookmarkComment()
+}
+
+function createTitle(story){
+	$("#content").append('<h5><a onclick=titleClick(' + story.id + ') href="#">' + story.title + '</a></h5><h6>' + story.score + ' points by ' + story.by + ' ' + time2TimeAgo(story.time) +  '</h6>');
+}
+
+
+function httpGetAsync(theUrl, callback)
+{
+    var xmlHttp = new XMLHttpRequest();
+    xmlHttp.onreadystatechange = function() { 
+        if (xmlHttp.readyState == 4 && xmlHttp.status == 200)
+            callback(xmlHttp.responseText);
+    }
+    xmlHttp.open("GET", theUrl, true); // true for asynchronous 
+    xmlHttp.send(null);
+}
+
+function time2TimeAgo(ts) {
+    // This function computes the delta between the
+    // provided timestamp and the current time, then test
+    // the delta for predefined ranges.
+
+    var d=new Date();  // Gets the current time
+    var nowTs = Math.floor(d.getTime()/1000); // getTime() returns milliseconds, and we need seconds, hence the Math.floor and division by 1000
+    var seconds = nowTs-ts;
+
+    // more that two days
+    if (seconds > 2*24*3600) {
+       return "a few days ago";
+    }
+    // a day
+    if (seconds > 24*3600) {
+       return "yesterday";
+    }
+
+    if (seconds > 3600) {
+	   var hour = Math.trunc(seconds/3600)
+	   if(hour > 1){
+		return hour + " hours ago";
+	   }else{
+		return hour + " hour ago";
+	   }
+       
+    }
+    if (seconds > 1800) {
+       return "half an hour ago";
+    }
+    if (seconds > 60) {
+       return Math.floor(seconds/60) + " minutes ago";
+    }
+}
+getBestStories();
+</script>
+</html>
