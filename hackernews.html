@@ -14,7 +14,7 @@
 </head>
 <body>
 <div class="container-fluid">
-  <h2>Hacker News!</h2>
+  <h2>Hacker News</h2>
   <div class="row">
 	<div class = "col-sm-12">
 		<div class="col-sm-3"  style = "background-color:#ff6600;"><h4>Topics</h4></div>
@@ -168,7 +168,7 @@ function loadBookmark(){
 }
 
 function createTitle(story){
-	$("#content").append('<h5><a onclick=titleClick(' + story.id + ') href="#">' + story.title + '</a></h5><h6>' + story.score + ' points by ' + story.by + ' ' + time2TimeAgo(story.time) +  '</h6>');
+	$("#content").append('<h5><a  href="' + story.url + '">' + story.title + '</a></h5><h6>' + story.score + ' points by ' + story.by + ' ' + time2TimeAgo(story.time) + ' <a href = "#" onclick=titleClick(' + story.id + ')>Read Comment</a></h6>');
 }
 
 
