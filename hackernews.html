@@ -33,7 +33,7 @@
 		<div class="col-sm-6"  style = "background-color:#ff6600;"><h4>Comments</h4></div>
 	</div>
 	<div class = "col-sm-12">
-		<div class="col-sm-4" style="background-color:lavender; height: 80vh; overflow:auto;" id = "content"></div>
+		<div class="col-sm-4" style="background-color:#e2e2e2; height: 80vh; overflow:auto;" id = "content"></div>
 		<div class="col-sm-2" style="background-color:#efefef;height: 80vh; overflow:auto;" id = "bookmark"></div>
 		<div class="col-sm-6" style="background-color:#f6f6ef;height: 80vh; overflow:auto;" id = "comment"></div>
 	</div>
@@ -50,6 +50,7 @@ function bestStories(responseText){
 	var stories = JSON.parse(responseText);
 	for (var i=0, l=30; i<l; i++) { 
 	  storyID = stories[i];
+    createEmptyTitle(storyID)
 	  httpGetAsync('https://hacker-news.firebaseio.com/v0/item/' + storyID + '.json?print=pretty',bestStoriesTitle);
 	}
 }
@@ -171,13 +172,17 @@ function loadBookmark(){
 
 	for (var i=0, l=bookmark.length; i<l; i++) {
 		var story = bookmark[i];
-		$("#bookmark").append('<div class = "col-sm-12" style = "margin-top:5px;" id = "' + story.id + '"><h5><a onclick=bookmarkClick(' + story.id + ') href="#">' + story.title + '</a></h5></div>');
+		$("#bookmark").append('<div class = "col-sm-12 bookmark" style = "margin-top:5px;" id = "' + story.id + '"><h5><a onclick=bookmarkClick(' + story.id + ') href="#">' + story.title + '</a></h5></div>');
 	}
 	loadLatestBookmarkComment()
 }
 
 function createTitle(story){
-	$("#content").append('<h5><a  href="' + story.url + '" target="_blank">' + story.title + '</a></h5><h6 style = "margin-top:-5px;">' + story.score + ' points by ' + story.by + ' ' + time2TimeAgo(story.time) + ' <a href = "#" onclick=titleClick(' + story.id + ')>Read Comment</a></h6>');
+  var storyDiv = '#parent' + story.id;
+	$(storyDiv).append('<h5><a  href="' + story.url + '" target="_blank">' + story.title + '</a></h5><h6 style = "margin-top:-5px;">' + story.score + ' points by ' + story.by + ' ' + time2TimeAgo(story.time) + ' <a href = "#" onclick=titleClick(' + story.id + ')>Read Comment</a></h6>');
+}
+function createEmptyTitle(storyID){
+	$("#content").append('<div id = "parent' + storyID + '"></div>');
 }
 
 
