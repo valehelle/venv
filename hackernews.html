@@ -171,19 +171,13 @@ function loadBookmark(){
 
 	for (var i=0, l=bookmark.length; i<l; i++) {
 		var story = bookmark[i];
-		var div = '<div class = "col-sm-12" style = "margin-top:5px;" id = "' + story.id + '"><h5><a onclick=bookmarkClick(' + story.id + ') href="#">' + story.title + '</a></h5><h6>';
-		if(story.url){
-			div += '<a href = "' + story.url + ' " target="_blank">Go to link</a>'; 
-		}
-		div +='</h6></div>';
-		
-		$("#bookmark").append(div);
+		$("#bookmark").append('<div class = "col-sm-12" style = "margin-top:5px;" id = "' + story.id + '"><h5><a onclick=bookmarkClick(' + story.id + ') href="#">' + story.title + '</a></h5></div>');
 	}
 	loadLatestBookmarkComment()
 }
 
 function createTitle(story){
-	$("#content").append('<h5><a href = "#" onclick=titleClick(' + story.id + ') >' + story.title + '</a></h5><h6 style = "margin-top:-5px;">' + story.score + ' points by ' + story.by + ' ' + time2TimeAgo(story.time) + '</h6>');
+	$("#content").append('<h5><a  href="' + story.url + '" target="_blank">' + story.title + '</a></h5><h6 style = "margin-top:-5px;">' + story.score + ' points by ' + story.by + ' ' + time2TimeAgo(story.time) + ' <a href = "#" onclick=titleClick(' + story.id + ')>Read Comment</a></h6>');
 }
 
 
