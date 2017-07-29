@@ -11,15 +11,48 @@
 
 	<!-- Latest compiled and minified JavaScript -->
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
-<script>
-  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+	<script>
+	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+	(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+	m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+	})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
 
-  ga('create', 'UA-103135379-1', 'auto');
-  ga('send', 'pageview');
-</script>
+	ga('create', 'UA-103135379-1', 'auto');
+	ga('send', 'pageview');
+	</script>
+	<style>
+	/* unvisited link */
+	a.topicTitle:link {
+		color: #000000;
+		text-decoration: none;
+	}
+	/* visited link */
+	a.topicTitle:visited {
+		color: #828282;
+		text-decoration: none;
+	}
+	a#topicLink:link {
+		color: #000000;
+		text-decoration: none;
+	}
+	/* visited link */
+	a#topicLink:visited {
+		color: #000000;
+		text-decoration: none;
+	}
+
+		/* unvisited link */
+	a.bookmarkTitle:link {
+		color: #000000;
+		text-decoration: none;
+	}
+	/* visited link */
+	a.bookmarkTitle:visited {
+		color: #000000;
+		text-decoration: none;
+	}
+
+	</style>
 	</head>
 <body>
 <div class="container-fluid">
@@ -35,7 +68,7 @@
 	<div class = "col-sm-12">
 		<div class="col-sm-4" style="background-color:#e2e2e2; height: 80vh; overflow:auto;" id = "content"></div>
 		<div class="col-sm-2" style="background-color:#efefef;height: 80vh; overflow:auto;" id = "bookmark"></div>
-		<div class="col-sm-6" style="background-color:#f6f6ef;height: 80vh; overflow:auto;" id = "comment"></div>
+		<div class="col-sm-6" style="background-color:#f6f6ef;height: 80vh; overflow:auto; padding-left:0px;" id = "comment" ></div>
 	</div>
   </div>
 </div>
@@ -46,6 +79,7 @@
 var bookmark = [];
 var storiesHash = {};
 var comments = [];
+var author = '';
 function bestStories(responseText){
 	var stories = JSON.parse(responseText);
 	for (var i=0, l=30; i<l; i++) { 
@@ -87,16 +121,20 @@ function bestStoriesTitle(responseText){
 
 function titleClick(storyID){
 	var story = storiesHash[storyID];
-	bookmark.push(story);
+	bookmark.unshift(story);
 	loadBookmark();
 }
 function bookmarkClick(storyID){
 	var story = storiesHash[storyID];
 	clearComments();
+	author = story.by
 	highlightTab(storyID);
+	$("#comment").append('<div class = "col-sm-12" style = "margin-top:15px;"><a id = "topicLink" href="https://news.ycombinator.com/item?id=' + storyID + '" target="_blank"><button type="button">add comment</button></a></div>');
 	if(story.kids){
 		for (var i=0, l=story.kids.length; i<l; i++) { 
 			var kidID = story.kids[i]
+			var emptyComment = '<div id = "comment' + kidID + '" class = "col-sm-12"></div>';
+			$("#comment").append(emptyComment);
 			httpGetAsync('https://hacker-news.firebaseio.com/v0/item/' + kidID + '.json?print=pretty',getComment);
 		}
 	}
@@ -129,33 +167,47 @@ function clearComments(){
 }
 
 function loadComment(comment){
-		$("#comment").append('<div id = ' + comment.id + '><h6 style = "color: #828282;">' + comment.by + ' ' +  time2TimeAgo(comment.time) + ' </h6><h5 style = "margin-top:-5px;">' + comment.text + '</h5></div>');
+		var byColor = '#828282';
+		if(comment.by === author){
+			byColor = '#ff6600';
+		}
+		var commentParent = '#comment' + comment.id;
+		var commentText = '<h6 style = "color: #828282;"><span style =" color:' + byColor + ';">' + comment.by + '</span> ' +  time2TimeAgo(comment.time)+ ' <a href = "https://news.ycombinator.com/reply?id=' + comment.id + '" target="_blank"> reply</a> </h6><h5 style = "margin-top:-5px; line-height:20px;">' + comment.text + '</h5>';
+		$(commentParent).append(commentText);
 		if(comment.kids){
-			loadKids(comment.kids);
+			loadKids(comment.id,comment.kids);
 		}
 }
 
 function getKids(responseText){
 	var comment = JSON.parse(responseText);
-	if(comment.kids){
-		loadKids(comment.kids);
-	}
-	var commentID = '#' + comment.parent;
 	if(!comment.deleted){
-		$(commentID).append('<div class = "col-sm-12" id = ' + comment.id + '><h6 style = "color: #828282;">' + comment.by + ' ' +  time2TimeAgo(comment.time) + ' </h6><h5 style = "margin-top:-5px;">' + comment.text + '</h5></div>');
+		var byColor = '#828282';
+		if(comment.by === author){
+			byColor = '#ff6600';
+		}
+		var commentParent = '#comment' + comment.id;
+		var commentText = '<h6 style = "color: #828282;"><span style = "color:"' + byColor + '">' + comment.by + '</span> ' +  time2TimeAgo(comment.time) + ' <a href = "https://news.ycombinator.com/reply?id=' + comment.id + '" target="_blank"> reply</a></h6><h5 style = "margin-top:-5px; line-height:20px;">' + comment.text + '</h5>';
+		$(commentParent).append(commentText);
+	}
+	if(comment.kids){
+		loadKids(comment.id,comment.kids);
 	}
 }
 
-function loadKids(kids){
+function loadKids(parentID,kids){
 	for (var i=0, l=kids.length; i<l; i++) {
 		var kidID = kids[i];
+		var emptyText = '<div class = "col-sm-12"  id = "comment' + kidID + '" style = "padding-right:0px;"></div>';
+		var commentParent = '#comment' + parentID;
+		$(commentParent).append(emptyText);
 		httpGetAsync('https://hacker-news.firebaseio.com/v0/item/' + kidID + '.json?print=pretty',getKids);
 	}
 }
 
 
 function loadLatestBookmarkComment(){
-	var story = bookmark[(bookmark.length - 1)]
+	var story = bookmark[0]
 	bookmarkClick(story.id)
 }
 function clearBookmark(){
@@ -169,20 +221,28 @@ function clearBookmark(){
 }
 function loadBookmark(){
 	clearBookmark();
-
-	for (var i=0, l=bookmark.length; i<l; i++) {
-		var story = bookmark[i];
-		$("#bookmark").append('<div class = "col-sm-12 bookmark" style = "margin-top:5px;" id = "' + story.id + '"><h5><a onclick=bookmarkClick(' + story.id + ') href="#">' + story.title + '</a></h5></div>');
+	clearComments();
+	if(bookmark.length > 0){
+		for (var i=0, l=bookmark.length; i<l; i++) {
+			var story = bookmark[i];
+			$("#bookmark").append('<div class = "col-sm-12 bookmark" style = "margin-top:5px;" id = "' + story.id + '"><h5><a class = "bookmarkTitle" onclick=bookmarkClick(' + story.id + ') href="#">' + story.title + '</a></h5><a href = "#" onClick=bookmarkClose(' + i + ')><h5>close</h5></a></div>');
+		}
+		loadLatestBookmarkComment()	
 	}
-	loadLatestBookmarkComment()
+
+}
+
+function bookmarkClose(position){
+	bookmark = removeByIndex(bookmark,position);
+	loadBookmark();
 }
 
 function createTitle(story){
   var storyDiv = '#parent' + story.id;
-	$(storyDiv).append('<h5><a  href="' + story.url + '" target="_blank">' + story.title + '</a></h5><h6 style = "margin-top:-5px;">' + story.score + ' points by ' + story.by + ' ' + time2TimeAgo(story.time) + ' <a href = "#" onclick=titleClick(' + story.id + ')>Read Comment</a></h6>');
+	$(storyDiv).append('<h5><a class = "topicTitle" href="' + story.url + '" target="_blank">' + story.title + '</a></h5><h6 style = "margin-top:-5px; color: #828282">' + story.score + ' points by ' + story.by + ' ' + time2TimeAgo(story.time) + ' <a href = "#" onclick=titleClick(' + story.id + ')>Read Comment</a></h6>');
 }
 function createEmptyTitle(storyID){
-	$("#content").append('<div id = "parent' + storyID + '"></div>');
+	$("#content").append('<div id = "parent' + storyID + '" style = "margin-bottom:20px;"></div>');
 }
 
 
@@ -231,6 +291,18 @@ function time2TimeAgo(ts) {
        return Math.floor(seconds/60) + " minutes ago";
     }
 }
+
+/**
+* removeByIndex
+* @param {Array} array
+* @param {Number} index
+*/
+function removeByIndex(array, index){
+    return array.filter(function(elem, _index){
+        return index != _index;
+    });
+}
+
 getBestStories();
 </script>
 </html>
