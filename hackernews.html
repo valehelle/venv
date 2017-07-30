@@ -195,7 +195,7 @@ function getKids(responseText){
 			byColor = '#ff6600';
 		}
 		var commentParent = '#comment' + comment.id;
-		var commentText = '<h6 style = "color: #828282;"><span style = "color:"' + byColor + '">' + comment.by + '</span> ' +  time2TimeAgo(comment.time) + ' <a href = "https://news.ycombinator.com/reply?id=' + comment.id + '" target="_blank"> reply</a></h6><h5 style = "margin-top:-5px; line-height:20px;">' + comment.text + '</h5>';
+		var commentText = '<h6 style = "color: #828282;"><span style = "color:' + byColor + ';">' + comment.by + '</span> ' +  time2TimeAgo(comment.time) + ' <a href = "https://news.ycombinator.com/reply?id=' + comment.id + '" target="_blank"> reply</a></h6><h5 style = "margin-top:-5px; line-height:20px;">' + comment.text + '</h5>';
 		$(commentParent).append(commentText);
 	}
 	if(comment.kids){
