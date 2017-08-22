@@ -1,108 +1,69 @@
 {
    "events": [
       {
-         "name": "60TH MERDEKA RUN",
-         "registerEndDate": "15/8/2017",
-         "eventStartDate": "1/8/2017",
-         "eventEndDate": "31/8/2017",
+         "name": "Wizard 80KM Challenge",
+         "registerEndDate": "31/8/2017",
+         "eventStartDate": "1/9/2017",
+         "eventEndDate": "30/9/2017",
          "image": [
-            "http://myrunnergo.com/wp-content/uploads/2017/05/MERDEKA-RUN-MEDAL-FRONT.jpg"
+            "http://www.beestorm.com.my/images/banner/doc_1501475634_BMM%20Template%20wizard%20.jpg"
          ],
-         "distance": "31",
-         "url": "http://myrunnergo.com/event/the-beat-clock-42km-run/",
+         "distance": "80",
+         "url": "http://www.beestorm.com.my/wizard",
          "id": 8,
-	 "price": "65"
+	 "price": "95"
       },
       {
-         "name": "Afterglow Run",
-         "registerEndDate": "15/8/2017",
+         "name": "Owl Night Race",
+         "registerEndDate": "25/8/2017",
          "eventStartDate": "1/9/2017",
-         "eventEndDate": "27/9/2017",
+         "eventEndDate": "30/9/2017",
          "image": [
-            "http://www.ultravrunner.com/shared/race/Afterglow/afterglow%20poster_for%20website-02.jpg"
+            "https://s3-ap-southeast-1.amazonaws.com/easystore.co/162884/images/products/2557247.jpeg"
          ],
-         "distance": "60",
-         "url": "http://www.ultravrunner.com/race-detail?pid=857",
+         "distance": "21",
+         "url": "https://www.mycomeonrun.com/products/21km-owl-night-run",
          "id": 1,
 	 "price": "85"
       },
       {
-         "name": "Panda Virtual Run",
-         "registerEndDate": "28/7/2017",
-         "eventStartDate": "28/7/2017",
-         "eventEndDate": "30/7/2017",
+         "name": "Pilot Run",
+         "registerEndDate": "31/8/2017",
+         "eventStartDate": "1/9/2017",
+         "eventEndDate": "30/9/2017",
          "image": [
-            "https://virtual-race-submissions.s3-ap-southeast-1.amazonaws.com/images/panda-01-meitu-1-jpg-9dx23062017-95954"
+            "http://myrunnergo.com/wp-content/uploads/2017/05/PILOT-RUN-OFFICIAL-MEDAL-PHOTO-FRONT.jpg"
          ],
-         "distance": "5, 10, 21, 42",
-         "url": "https://web.42race.com/races/virtual/pandarun",
+         "distance": "60",
+         "url": "http://myrunnergo.com/",
          "id": 2,
          "price": "29.9"
       },
       {
-         "name": "Guardians of the District",
-         "registerEndDate": "30/8/2017",
-         "eventStartDate": "31/8/2017",
-         "eventEndDate": "3/9/2017",
+         "name": "THE WINDSTALKER",
+         "registerEndDate": "12/9/2017",
+         "eventStartDate": "16/9/2017",
+         "eventEndDate": "15/10/2017",
          "image": [
-            "https://virtual-race-submissions.s3-ap-southeast-1.amazonaws.com/images/medalbanner-01-meitu-14-jpg-zok21062017-171413"
+            "https://lh4.googleusercontent.com/rNJj-tDoiMbTBlEsxkrWe8OoMloYNd7g3Mpeivu4O5UjO8Ds92v5PBn0cmmxPkApp0-ebeLTBA=w2560"
          ],
-         "distance": "5, 10, 21, 42",
-         "url": "https://web.42race.com/races/virtual/myindependenceday",
+         "distance": "7",
+         "url": "https://docs.google.com/forms/d/e/1FAIpQLSeRfrIiuZ1E-vNY05l5vuNEEoxggASWAMfdjT08k7ZGS7rc9A/viewform",
          "id": 3,
          "price": "29.9"
       },
       {
-         "name": "Death Race",
-         "registerEndDate": "31/7/2017",
-         "eventStartDate": "1/8/2017",
-         "eventEndDate": "21/3/2018",
+         "name": "Guardians of the Wild run",
+         "registerEndDate": "25/9/2017",
+         "eventStartDate": "1/10/2017",
+         "eventEndDate": "31/10/2017",
          "image": [
-            "https://scontent.fkul8-1.fna.fbcdn.net/v/t1.0-9/19511291_834417186711357_8820196205600548026_n.jpg?oh=46922fc3e0a71a81a4cba9191dc1983e&oe=59D29FA3"
+            "https://scontent.fkul10-1.fna.fbcdn.net/v/t1.0-9/20664912_2024168541159058_3507585164144597650_n.jpg?oh=f1a66fc2b8cc87926a26b0fc7cf08ecc&oe=5A3102D3"
          ],
-         "distance": "500",
-         "url": "https://docs.google.com/forms/d/e/1FAIpQLSewND3deV8nDx2uwH0FN95-1iNzpMNEWFkKkcpE_CPPglEwWQ/viewform",
+         "distance": "30",
+         "url": "https://www.facebook.com/dasvirtuel/",
          "id": 4,
          "price": "70"
-      },
-      {
-         "name": "Medal Of Honor",
-         "registerEndDate": "31/7/2017",
-         "eventStartDate": "1/8/2017",
-         "eventEndDate": "31/8/2017",
-         "image": [
-            "http://www.beestorm.com.my/images/banner/doc_1498714887_BMM%20Template%20Honor%20.jpg"
-         ],
-         "distance": "60",
-         "url": "http://www.beestorm.com.my/honor60",
-         "id": 5,
-         "price": "60"
-      },
-      {
-         "name": " Illusion Run",
-         "registerEndDate": "31/7/2017",
-         "eventStartDate": "1/8/2017",
-         "eventEndDate": "31/8/2017",
-         "image": [
-            "https://scontent.fkul8-1.fna.fbcdn.net/v/t1.0-9/19554029_859897704176923_2589861188449151823_n.png?oh=04b591f45b3f52533c67356afd734beb&oe=59D1FE05"
-         ],
-         "distance": "42",
-         "url": "https://docs.google.com/forms/d/e/1FAIpQLScNPMa_UfCrmTO0UKG-uus4vP7n7tG2As2XP6hEGhUOmiw9KA/viewform",
-         "id": 6,
-         "price": "65"
-      },
-      {
-         "name": " Cobra Op",
-         "registerEndDate": "16/7/2017",
-         "eventStartDate": "16/7/2017",
-         "eventEndDate": "15/8/2017",
-         "image": [
-            "https://scontent.fkul10-1.fna.fbcdn.net/v/t1.0-9/s851x315/19657173_480519608963390_1158660392023244221_n.jpg?oh=a81e1e67bdf620ebaa037e3f288e4cf5&oe=59C5C83C"
-         ],
-         "distance": "42",
-         "url": "https://docs.google.com/forms/d/e/1FAIpQLSf6_Xmn7EEp8DCr73XU1ySdHaHO-DAAsphbceaJkeWz_JBZLg/viewform?c=0&w=1",
-         "id": 7,
-         "price": "65"
       }
    ]
 }
